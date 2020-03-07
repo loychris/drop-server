@@ -1,5 +1,5 @@
 {
-  "name": "drop_backend",
+  "name": "drop-stream-server",
   "version": "1.0.0",
   "description": "Server for Drop Stream",
   "main": "index.js",
