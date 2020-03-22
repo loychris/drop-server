@@ -1,24 +1,73 @@
-const express = require('express');
+var express = require('express') 
+var cors = require('cors')
+const fs = require('fs')
 const path = require('path');
 
-const app = express();
+const posts = require('./posts.json')
+const dropTargers = require('./dropTargets.json')
 
-// Serve the static files from the React app
-app.use(express.static(path.join(__dirname, 'client/build')));
+/////////////// get array with all the paths ///////////
+const filenamesArr = [];
+function promisify(fn) {
+  return function promisified(...params) {
+    return new Promise((resolve, reject) => fn(...params.concat([(err, ...args) => err ? reject(err) : resolve( args.length < 2 ? args[0] : args )])))
+  }
+}
+const readdirAsync = promisify(fs.readdir)
+readdirAsync('./memes').then(filenames => filenames.forEach(filename => {
+  filenamesArr.push(filename);
+}))
+////////////////////////////////////////////////////////
 
-// An api endpoint that returns a short list of items
-app.get('/api/getList', (req,res) => {
-    var list = ["item1", "item2", "item3"];
-    res.json(list);
-    console.log('Sent list of items');
-});
 
-// Handles any requests that don't match the ones above
-app.get('*', (req,res) =>{
-    res.sendFile(path.join(__dirname+'/dropWebApp/build/index.html'));
-});
 
-const port = process.env.PORT || 5000;
-app.listen(port);
 
-console.log('App is listening on port ' + port);
+var app = express()
+const port = 5000
+ 
+app.use(cors())
+app.use(express.json())
+
+
+
+app.get('/post/:postId', (req, res) => {
+  const postId = Number(req.params.postId);
+  let post = posts.find(x => {return x.id === postId});
+  res.json(post);
+})
+app.get('/post/:postId/comment/:commentId', (req, res) => {
+  const postId = Number(req.params.postId);
+  const commentId = Number(req.params.commentId);
+  console.log('COMMENT-ID', commentId)
+  const post = posts.find(x => {return x.id === postId});
+  console.log('POST', post);
+  const comment = post.comments.find(x => {return x.id === commentId});
+  console.log('COMMENT', comment);
+  res.json(comment);
+})
+app.get('/meme/:postId', (req, res) =>{
+  const filePath = path.join(__dirname, './memes', filenamesArr[req.params.postId % filenamesArr.length]);
+  res.sendFile(filePath);
+})
+app.get('/post/:postId/comments', (req, res) => {
+  const postId = Number(req.params.postId);
+  const post = posts.find(x => {return x.id === postId});
+  res.json(post.comments);
+})
+ 
+
+
+app.get('/dropTargets', (req, res) => {
+  res.json(dropTargers);
+})
+
+
+
+
+
+
+
+
+app.listen(port, function () {
+  console.log(`CORS-enabled web server listening on port ${port}`);
+})

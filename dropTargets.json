@@ -1,0 +1,86 @@
+[
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Alessio",
+       "selected": false,
+       "id": 1
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "David",
+       "selected": false,
+       "id": 8
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Donald Trump",
+       "selected": false,
+       "id": 10
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Elon Musk",
+       "selected": false,
+       "id": 11
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Enton",
+       "selected": false,
+       "id": 7
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Erdolars",
+       "selected": false,
+       "id": 4
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Felix",
+       "selected": false,
+       "id": 0
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Frank Buschmann",
+       "selected": false,
+       "id": 6
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Jon Bovi",
+       "selected": false,
+       "id": 9
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Kirill",
+       "selected": false,
+       "id": 2
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Max Mustenann",
+       "selected": false,
+       "id": 5
+    },
+    {
+       "type": "person",
+       "profilePic": "",
+       "name": "Ullreich",
+       "selected": false,
+       "id": 3
+    }
+ ]

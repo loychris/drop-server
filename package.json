@@ -1,23 +1,25 @@
 {
   "name": "drop-stream-server",
   "version": "1.0.0",
-  "description": "Server for Drop Stream",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": " node index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/loychris/drop_backend.git"
+    "url": "git+https://github.com/loychris/drop-stream-server.git"
   },
-  "author": "Chris Loy",
+  "author": "chris loy",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/loychris/drop_backend/issues"
+    "url": "https://github.com/loychris/drop-stream-server/issues"
   },
-  "homepage": "https://github.com/loychris/drop_backend#readme",
+  "homepage": "https://github.com/loychris/drop-stream-server#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "react-lazy-load-image-component": "^1.4.1"
   }
 }

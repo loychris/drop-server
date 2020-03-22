@@ -1,0 +1,79 @@
+[
+    {
+        "id": 0,
+        "title": "Title of the first Post", 
+        "comments": [
+            {
+                "commentId": 0,
+                "author": "first Commenter",
+                "points": 12,
+                "comment": "This is the first comment of the firsts post",
+                "subComments": []
+            },
+            {
+                "commentId": 1,
+                "author": "second Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the firsts post",
+                "subComments": []
+            }
+        ]
+    },
+    {
+        "id": 1,
+        "title": "Title of the second Post", 
+        "comments": [
+            {
+                "commentId": 0,
+                "author": "first Commenter",
+                "points": 12,
+                "comment": "This is the first comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 1,
+                "author": "second Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 2,
+                "author": "third Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 3,
+                "author": "4th Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 4,
+                "author": "fifth Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 5,
+                "author": "sixth Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            }
+        ]
+    },
+    {"id": 2,"title": "Title of the second Post", "comments": []},
+    {"id": 3,"title": "Title of the second Post", "comments": []},
+    {"id": 4,"title": "Title of the second Post", "comments": []},
+    {"id": 5,"title": "Title of the second Post", "comments": []},
+    {"id": 6,"title": "Title of the second Post", "comments": []},
+    {"id": 7,"title": "Title of the second Post", "comments": []},
+    {"id": 8,"title": "Title of the second Post", "comments": []},
+    {"id": 9,"title": "Title of the second Post", "comments": []},
+    {"id": 10,"title": "Title of the second Post", "comments": []}
+]
