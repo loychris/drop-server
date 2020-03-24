@@ -35,35 +35,82 @@ app.get('/post/:postId', (req, res) => {
   let post = posts.find(x => {return x.id === postId});
   res.json(post);
 })
+
 app.get('/post/:postId/comment/:commentId', (req, res) => {
   const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
-  console.log('COMMENT-ID', commentId)
   const post = posts.find(x => {return x.id === postId});
-  console.log('POST', post);
   const comment = post.comments.find(x => {return x.id === commentId});
-  console.log('COMMENT', comment);
   res.json(comment);
 })
+
 app.get('/meme/:postId', (req, res) =>{
   const filePath = path.join(__dirname, './memes', filenamesArr[req.params.postId % filenamesArr.length]);
   res.sendFile(filePath);
 })
+
 app.get('/post/:postId/comments', (req, res) => {
   const postId = Number(req.params.postId);
   const post = posts.find(x => {return x.id === postId});
   res.json(post.comments);
 })
- 
-
 
 app.get('/dropTargets', (req, res) => {
   res.json(dropTargers);
 })
 
+app.post('/post/:postId/comment', (req, res) => {
+  console.log('NEW COMMENT', req.body);
+})
 
 
 
+
+// {"user": "Chris Loy", "vote": "up"/"neutral"/"down"}
+app.post('/post/:postId/comment/:commentId/vote', (req, res) => {
+  const vote = req.body.vote
+  const user = req.body.user
+  const post = posts.find(x => {return x.id === Number(req.params.postId)})
+  const comment =  post.comments.find(comment => {console.log(comment.commentId); return comment.commentId === Number(req.params.commentId)})
+  switch(vote){
+    case "up":
+      if(comment.upvoters.includes(user)){
+        console.log(`${user} already upvoted!`)
+      } else if(comment.downvoters.includes(user)){
+        //TODO: upvoters.push(user); 
+        //      downvoters.remove(user); 
+        //      comment.points-=2
+      } else {
+        //TODO: upvoters.push(req); 
+        //      comment.points++
+      }
+      break;
+    case "neutral":
+      if(comment.upvoters.includes(user)){
+        //TODO: upvoters.remove(user); 
+        //      comment.points--
+      }else if(comment.downvoters.includes(user)){
+        //TODO: downvotes.remove(user); 
+        //      comment.points++
+      } else {
+        console.log(`${user} didn't vote yet!`)
+      }
+      break; 
+    case "down":
+      if(comment.upvoters.includes(user)){
+        //TODO: upvoters.remove(user); 
+        //      downvoters.push(user); 
+        //      comment.points-=2
+      }else if(comment.downvoters.includes(user)){
+        console.log(`${user} already downvoted!`)
+      } else {
+        //TODO: downvoters.push(user)
+      } 
+      break; 
+    default: console.log("faulty vote-value on comment-vote-api");
+  }
+  res.json(comment);
+})
 
 
 

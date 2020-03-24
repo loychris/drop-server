@@ -27,6 +27,69 @@
                 "commentId": 0,
                 "author": "first Commenter",
                 "points": 12,
+                "upvoters": ["Mario Speedwagon","Petey Cruiser","Anna Sthesia","Paul Molive","Anna Mull","Gail Forcewind","Paige Turner","Bob Frapples"],
+                "downvoters": ["Chris Loy"],
+                "comment": "This is the first comment of the second post",
+                "subComments": [
+                    {
+                        "author": "author of the first subCommenter",
+                        "points": 14,
+                        "comment": "This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment",
+                        "subComments": [
+                            {
+                                "author": "SubSubAuthor",
+                                "points": 2,
+                                "comment": "This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment, This is the first subComment",
+                                "subComments": []
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "commentId": 1,
+                "author": "second Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 2,
+                "author": "third Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 3,
+                "author": "4th Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 4,
+                "author": "fifth Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 5,
+                "author": "sixth Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            }
+        ],
+        "droppedBy": ["Christoph Loy", "Felix"]
+    },
+    {"id": 2,"title": "Title of the second Post",
+        "comments": [
+            {
+                "commentId": 0,
+                "author": "first Commenter",
+                "points": 12,
                 "comment": "This is the first comment of the second post",
                 "subComments": []
             },
@@ -67,8 +130,54 @@
             }
         ]
     },
-    {"id": 2,"title": "Title of the second Post", "comments": []},
-    {"id": 3,"title": "Title of the second Post", "comments": []},
+    {
+        "id": 3,
+        "title": "Title of the second Post",         
+        "comments": [
+            {
+                "commentId": 0,
+                "author": "first Commenter",
+                "points": 12,
+                "comment": "This is the first comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 1,
+                "author": "second Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 2,
+                "author": "third Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 3,
+                "author": "4th Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 4,
+                "author": "fifth Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            },
+            {
+                "commentId": 5,
+                "author": "sixth Commenter",
+                "points": 2,
+                "comment": "This is the second comment of the second post",
+                "subComments": []
+            }
+        ]
+    },
     {"id": 4,"title": "Title of the second Post", "comments": []},
     {"id": 5,"title": "Title of the second Post", "comments": []},
     {"id": 6,"title": "Title of the second Post", "comments": []},
