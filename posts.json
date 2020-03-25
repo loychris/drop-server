@@ -27,7 +27,7 @@
                 "commentId": 0,
                 "author": "first Commenter",
                 "points": 12,
-                "upvoters": ["Mario Speedwagon","Petey Cruiser","Anna Sthesia","Paul Molive","Anna Mull","Gail Forcewind","Paige Turner","Bob Frapples"],
+                "upvoters": ["Voting User", "Mario Speedwagon","Petey Cruiser","Anna Sthesia","Paul Molive","Anna Mull","Gail Forcewind","Paige Turner","Bob Frapples"],
                 "downvoters": ["Chris Loy"],
                 "comment": "This is the first comment of the second post",
                 "subComments": [

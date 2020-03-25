@@ -71,7 +71,7 @@ app.post('/post/:postId/comment/:commentId/vote', (req, res) => {
   const vote = req.body.vote
   const user = req.body.user
   const post = posts.find(x => {return x.id === Number(req.params.postId)})
-  const comment =  post.comments.find(comment => {console.log(comment.commentId); return comment.commentId === Number(req.params.commentId)})
+  const comment =  post.comments.find(comment => {return comment.commentId === Number(req.params.commentId)})
   switch(vote){
     case "up":
       if(comment.upvoters.includes(user)){
