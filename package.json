@@ -20,6 +20,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "mongodb": "^3.5.5",
+    "nodemon": "^2.0.2",
     "react-lazy-load-image-component": "^1.4.1"
   }
 }
