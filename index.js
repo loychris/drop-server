@@ -4,9 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const MongoClient = require("mongodb").MongoClient;
 
-const posts = require("./posts.json");
-const Contacts = require("./Contacts.json");
-const RecentChats = require("./RecentChats.json");
+const posts = require("./DB/posts.json");
+const Contacts = require("./DB/Contacts.json");
+const Chats = require("./DB/Chats.json");
 
 /////////////// get array with all the paths ///////////
 const filenamesArr = [];
@@ -16,18 +16,35 @@ function promisify(fn) {
       fn(
         ...params.concat([
           (err, ...args) =>
-            err ? reject(err) : resolve(args.length < 2 ? args[0] : args)
+            err ? reject(err) : resolve(args.length < 2 ? args[0] : args),
         ])
       )
     );
   };
 }
 const readdirAsync = promisify(fs.readdir);
-readdirAsync("./memes").then(filenames =>
-  filenames.forEach(filename => {
-    filenamesArr.push(filename);
+readdirAsync("./memes")
+  .then((filenames) =>
+    filenames.forEach((filename) => {
+      filenamesArr.push(filename);
+    })
+  )
+  .then(() => {
+    readdirAsync("./memes/new").then((filenames) => {
+      filenames.forEach((filename) => {
+        filenamesArr.unshift(`new/${filename}`);
+      });
+    });
   })
-);
+  .then(() => {
+    readdirAsync("./memes/newnew").then((filenames) => {
+      filenames.forEach((filename) => {
+        filenamesArr.unshift(`newnew/${filename}`);
+      });
+    });
+  })
+  .then(() => console.log(filenamesArr.length));
+
 ////////////////////////////////////////////////////////
 
 var app = express();
@@ -38,7 +55,7 @@ app.use(express.json());
 
 app.get("/post/:postId", (req, res) => {
   const postId = Number(req.params.postId);
-  let post = posts.find(x => {
+  let post = posts.find((x) => {
     return x.id === postId;
   });
   res.json(post);
@@ -47,10 +64,10 @@ app.get("/post/:postId", (req, res) => {
 app.get("/post/:postId/comment/:commentId", (req, res) => {
   const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
-  const post = posts.find(x => {
+  const post = posts.find((x) => {
     return x.id === postId;
   });
-  const comment = post.comments.find(x => {
+  const comment = post.comments.find((x) => {
     return x.id === commentId;
   });
   res.json(comment);
@@ -67,7 +84,7 @@ app.get("/meme/:postId", (req, res) => {
 
 app.get("/post/:postId/comments", (req, res) => {
   const postId = Number(req.params.postId);
-  const post = posts.find(x => {
+  const post = posts.find((x) => {
     return x.id === postId;
   });
   res.json(post.comments);
@@ -85,10 +102,10 @@ app.post("/post/:postId/comment", (req, res) => {
 app.post("/post/:postId/comment/:commentId/vote", (req, res) => {
   const vote = req.body.vote;
   const user = req.body.user;
-  const post = posts.find(x => {
+  const post = posts.find((x) => {
     return x.id === Number(req.params.postId);
   });
-  const comment = post.comments.find(comment => {
+  const comment = post.comments.find((comment) => {
     return comment.commentId === Number(req.params.commentId);
   });
   switch (vote) {
@@ -136,10 +153,40 @@ app.get("/contacts", (req, res) => {
   res.json(Contacts);
 });
 
-app.get("/recentchats", (req, res) => {
-  res.json(RecentChats);
+app.get("/chat/:chatId", (req, res) => {
+  const chat = Chats.find((x) => {
+    return x.chatId === Number(req.params.chatId);
+  });
+  if (chat) {
+    res.json(chat);
+  } else {
+    res.json(["No Chat yet"]);
+  }
 });
 
-app.listen(port, function() {
+app.get("/chat/:chatId/msg/:msgId", (req, res) => {
+  const chat = Chats.find((x) => {
+    return x.chatId === Number(req.params.chatId);
+  });
+  if (!chat) {
+    res.json(["invalid chatId"]);
+  } else {
+    const msg = chat.latestMessages.find((x) => {
+      return x.msgId === Number(req.params.msgId);
+    });
+    console.log(!msg);
+    if (!msg) {
+      res.json(["invalid msgId"]);
+    } else {
+      res.json(msg);
+    }
+  }
+});
+
+app.get("/chats", (req, res) => {
+  res.json(Chats);
+});
+
+app.listen(port, function () {
   console.log(`CORS-enabled web server listening on port ${port}`);
 });
