@@ -1,192 +1,48 @@
-var express = require("express");
-var cors = require("cors");
-const fs = require("fs");
-const path = require("path");
-const MongoClient = require("mongodb").MongoClient;
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
 
-const posts = require("./DB/posts.json");
-const Contacts = require("./DB/Contacts.json");
-const Chats = require("./DB/Chats.json");
+const HttpError = require("./models/http-error");
+const chatRoutes = require("./routes/chat-routes");
+const streamRoutes = require("./routes/stream-routes");
+const memeRoutes = require("./routes/meme-route");
+const dropRoutes = require("./routes/drop-routes");
 
-/////////////// get array with all the paths ///////////
-const filenamesArr = [];
-function promisify(fn) {
-  return function promisified(...params) {
-    return new Promise((resolve, reject) =>
-      fn(
-        ...params.concat([
-          (err, ...args) =>
-            err ? reject(err) : resolve(args.length < 2 ? args[0] : args),
-        ])
-      )
-    );
-  };
-}
-const readdirAsync = promisify(fs.readdir);
-readdirAsync("./memes")
-  .then((filenames) =>
-    filenames.forEach((filename) => {
-      filenamesArr.push(filename);
-    })
-  )
-  .then(() => {
-    readdirAsync("./memes/new").then((filenames) => {
-      filenames.forEach((filename) => {
-        filenamesArr.unshift(`new/${filename}`);
-      });
-    });
-  })
-  .then(() => {
-    readdirAsync("./memes/newnew").then((filenames) => {
-      filenames.forEach((filename) => {
-        filenamesArr.unshift(`newnew/${filename}`);
-      });
-    });
-  })
-  .then(() => console.log(filenamesArr.length));
-
-////////////////////////////////////////////////////////
-
-var app = express();
-const port = 5000;
+const app = express();
+const port = 5001;
 
 app.use(cors());
 app.use(express.json());
+app.use(chatRoutes);
+app.use("/api/drop", dropRoutes);
+app.use("/api/meme", memeRoutes);
+app.use(streamRoutes);
 
-app.get("/post/:postId", (req, res) => {
-  const postId = Number(req.params.postId);
-  let post = posts.find((x) => {
-    return x.id === postId;
-  });
-  res.json(post);
+app.use((req, res, next) => {
+  const error = new HttpError("Could not find this route.", 404);
+  throw error;
 });
 
-app.get("/post/:postId/comment/:commentId", (req, res) => {
-  const postId = Number(req.params.postId);
-  const commentId = Number(req.params.commentId);
-  const post = posts.find((x) => {
-    return x.id === postId;
-  });
-  const comment = post.comments.find((x) => {
-    return x.id === commentId;
-  });
-  res.json(comment);
-});
-
-app.get("/meme/:postId", (req, res) => {
-  const filePath = path.join(
-    __dirname,
-    "./memes",
-    filenamesArr[req.params.postId % filenamesArr.length]
-  );
-  res.sendFile(filePath);
-});
-
-app.get("/post/:postId/comments", (req, res) => {
-  const postId = Number(req.params.postId);
-  const post = posts.find((x) => {
-    return x.id === postId;
-  });
-  res.json(post.comments);
-});
-
-app.get("/dropTargets", (req, res) => {
-  res.json(Contacts);
-});
-
-app.post("/post/:postId/comment", (req, res) => {
-  console.log("NEW COMMENT", req.body);
-});
-
-// {"user": "Chris Loy", "vote": "up"/"neutral"/"down"}
-app.post("/post/:postId/comment/:commentId/vote", (req, res) => {
-  const vote = req.body.vote;
-  const user = req.body.user;
-  const post = posts.find((x) => {
-    return x.id === Number(req.params.postId);
-  });
-  const comment = post.comments.find((comment) => {
-    return comment.commentId === Number(req.params.commentId);
-  });
-  switch (vote) {
-    case "up":
-      if (comment.upvoters.includes(user)) {
-        console.log(`${user} already upvoted!`);
-      } else if (comment.downvoters.includes(user)) {
-        //TODO: upvoters.push(user);
-        //      downvoters.remove(user);
-        //      comment.points-=2
-      } else {
-        //TODO: upvoters.push(req);
-        //      comment.points++
-      }
-      break;
-    case "neutral":
-      if (comment.upvoters.includes(user)) {
-        //TODO: upvoters.remove(user);
-        //      comment.points--
-      } else if (comment.downvoters.includes(user)) {
-        //TODO: downvotes.remove(user);
-        //      comment.points++
-      } else {
-        console.log(`${user} didn't vote yet!`);
-      }
-      break;
-    case "down":
-      if (comment.upvoters.includes(user)) {
-        //TODO: upvoters.remove(user);
-        //      downvoters.push(user);
-        //      comment.points-=2
-      } else if (comment.downvoters.includes(user)) {
-        console.log(`${user} already downvoted!`);
-      } else {
-        //TODO: downvoters.push(user)
-      }
-      break;
-    default:
-      console.log("faulty vote-value on comment-vote-api");
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
   }
-  res.json(comment);
-});
 
-app.get("/contacts", (req, res) => {
-  res.json(Contacts);
-});
-
-app.get("/chat/:chatId", (req, res) => {
-  const chat = Chats.find((x) => {
-    return x.chatId === Number(req.params.chatId);
+  res.status(error.code || 500);
+  res.json({
+    message: error.message || "An unknown error occured!",
   });
-  if (chat) {
-    res.json(chat);
-  } else {
-    res.json(["No Chat yet"]);
-  }
 });
 
-app.get("/chat/:chatId/msg/:msgId", (req, res) => {
-  const chat = Chats.find((x) => {
-    return x.chatId === Number(req.params.chatId);
+mongoose
+  .connect(
+    "mongodb+srv://Chris:88z5QXa22z3mJJx1@dropcluster-52lyz.mongodb.net/stream?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
+  .then(() => {
+    console.log("Connected to db");
+    app.listen(port);
+  })
+  .catch((err) => {
+    console.log(err);
   });
-  if (!chat) {
-    res.json(["invalid chatId"]);
-  } else {
-    const msg = chat.latestMessages.find((x) => {
-      return x.msgId === Number(req.params.msgId);
-    });
-    console.log(!msg);
-    if (!msg) {
-      res.json(["invalid msgId"]);
-    } else {
-      res.json(msg);
-    }
-  }
-});
-
-app.get("/chats", (req, res) => {
-  res.json(Chats);
-});
-
-app.listen(port, function () {
-  console.log(`CORS-enabled web server listening on port ${port}`);
-});

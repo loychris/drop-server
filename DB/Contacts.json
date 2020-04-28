@@ -1,85 +1,86 @@
-[{
-      "type": "person",
-      "profilePic": "",
-      "name": "Josua Sievers",
-      "id": 0
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Alessio",
-      "id": 1
-   },
-   {
-      "type": "group",
-      "profilePic": "",
-      "name": "Pokern",
-      "id": 1000
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "David",
-      "id": 3
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Tonald Drump",
-      "id": 4
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Elon Musk",
-      "id": 5
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Enton",
-      "id": 6
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Lars Bock",
-      "id": 7
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Felix",
-      "id": 8
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Frank Buschmann",
-      "id": 9
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Jon Bovi",
-      "id": 10
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Kirill",
-      "id": 11
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Max Mustenann",
-      "id": 12
-   },
-   {
-      "type": "person",
-      "profilePic": "",
-      "name": "Ullreich",
-      "id": 13
-   }
+[
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Josua Sievers",
+    "id": 0
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Alessio",
+    "id": 1
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Johannes",
+    "id": 2
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "David Gramm",
+    "id": 3
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Tonald Drump",
+    "id": 4
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Elon Musk",
+    "id": 5
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Enton",
+    "id": 6
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Lars Bock",
+    "id": 7
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Felix",
+    "id": 8
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Frank Buschmann",
+    "id": 9
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Jon Bovi",
+    "id": 10
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Kirill",
+    "id": 11
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Max Mustenann",
+    "id": 12
+  },
+  {
+    "type": "person",
+    "profilePic": "",
+    "name": "Ullreich",
+    "id": 13
+  }
 ]
