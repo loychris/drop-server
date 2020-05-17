@@ -1,7 +1,8 @@
 
-const HttpError = require('../models/http-error');
-const { checkValidation, handleExists, emailExists } = require('../util/util');
+const Isemail = require('isemail');
 
+const HttpError = require('../models/http-error');
+const { checkValidation } = require('../util/util');
 const User = require('../models/user'); 
 
 const signup = async (req, res, next) => {
@@ -45,15 +46,17 @@ const login = async (req, res, next) => {
   const { identification, password } = req.body;
 
   let existingUser;
-  if(identification.startsWith('@')){
+  if(Isemail.validate(identification)){
     try {
-      existingUser = await User.findOne({ handle: identification })
+      existingUser = await User.findOne({ email: identification })
     } catch (err) {
       return next(new HttpError('Logging in failed, please try again later.', 500));
     }
-  }else{
+  } else {
+    let handle = identification
+    if(!identification.startsWith('@')) handle = `@${identification}`;
     try {
-      existingUser = await User.findOne({ email: identification })
+      existingUser = await User.findOne({ handle: handle })
     } catch (err) {
       return next(new HttpError('Logging in failed, please try again later.', 500));
     }
@@ -75,11 +78,12 @@ const checkHandle = async (req, res, next) => {
   if(user){
     res.status(422).json({alreadyExists: true}); 
   }else{
-    res.json({alreadyExists: false});
+    res.json({handleExists: false});
   }
 }
 
 const checkEmail = async (req, res, next) => {
+  checkValidation(req, next);
   const email = req.body.email;
   let user;
   try {
@@ -90,7 +94,7 @@ const checkEmail = async (req, res, next) => {
   if(user){
     res.status(422).json({alreadyExists: true}); 
   }else{
-    res.json({alreadyExists: false});
+    res.json({emailExists: false});
   }
 }
 
