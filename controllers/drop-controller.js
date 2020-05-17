@@ -1,4 +1,6 @@
 const { validationResult } = require("express-validator");
+const mongoose = require('mongoose');
+
 const { prepareComment } = require("../util/util");
 const Drop = require("../models/drop");
 const User = require("../models/user");
@@ -12,6 +14,7 @@ const getDropById = async (req, res, next) => {
   try {
     drop = await Drop.findById(dropId);
   } catch (err) {
+    console.log(err);
     return next(new HttpError("Something went wrong, could not find drop", 500));
   }
   if (!drop) {
@@ -21,30 +24,36 @@ const getDropById = async (req, res, next) => {
 };
 
 const createDrop = async (req, res, next) => {
-  const { title, creator, meme, source } = req.body;
+  const { title, creatorId, meme, source } = req.body;
   let user;
   try{
-    user = await User.findOne({ handle: creator })
+    user = await User.findById(creatorId);
   }catch(err){
-    console.log(err);
     return next(new HttpError("Creating drop failed, please try again", 500));
   }
-  console.log(user);
   if (!user) {
-    return next(new HttpError('Could not find user for provided handle', 404));
+    return next(new HttpError('Could not find user for provided id', 404));
   }
   const createdDrop = new Drop({
     title,
-    creator,
+    creatorId,
     meme,
     source,
+    posted: new Date(),
     leftSwipers: [],
     rightSwipers: [],
     pinners: [],
     comments: []
   });
+
+
   try {
-    await createdDrop.save();
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdDrop.save({session: sess});
+    user.createdDrops.push(createdDrop);
+    await user.save({session: sess});
+    await sess.commitTransaction();
   } catch (err) {
     console.log(err);
     return next(new HttpError("Creating drop failed, please try again", 500));

@@ -6,9 +6,10 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
     name: { type: String, required: true },
-    _id: { type: String, required: true, unique: true },
+    handle: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 6 },
+    joined: { type: Date, required: true },
     createdDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
     swipedLeftDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
     swipedRightDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],

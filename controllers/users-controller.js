@@ -8,11 +8,11 @@ const User = require('../models/user');
 const signup = async (req, res, next) => {
   checkValidation(req, next);
   const { name, email, handle, password } = req.body;
+  const date = new Date();
   let user;
   try{
-    user = await User.findById(handle);
+    user = await User.findOne({handle: handle})
   }catch(err){
-    console.log(err);
     return next(new HttpError('Register User failed, please try again later.', 500));
   }
   if(user){
@@ -29,9 +29,13 @@ const signup = async (req, res, next) => {
   let createdUser =  new User({
     name,
     email,
-    _id: handle,
+    handle,
     password,
+    joined: new Date(),
     createdDrops: [],
+    swipedLeftDrops: [],
+    swipedRightDrops: [],
+    savedDrops: [],
     writtenComments: []
   });
   try{
@@ -57,7 +61,7 @@ const login = async (req, res, next) => {
     let handle = identification
     if(!identification.startsWith('@')) handle = `@${identification}`;
     try {
-      existingUser = await User.findById(handle)
+      existingUser = await User.findOne({ handle: handle })
     } catch (err) {
       return next(new HttpError('Logging in failed, please try again later.', 500));
     }
@@ -72,7 +76,7 @@ const checkHandle = async (req, res, next) => {
   const handle = req.body.handle;
   let user;
   try {
-    user = await User.findById(handle);
+    user = await User.findOne({ handle: handle })
   } catch (err) {
     return next(new HttpError('Checking handle failed, please try again later.', 500));
   }
