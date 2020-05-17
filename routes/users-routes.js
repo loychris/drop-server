@@ -16,4 +16,8 @@ router.post(
 
 router.post('/login', usersController.login);
 
+router.post('/checkHandle', usersController.checkHandle);
+
+router.post('/checkEmail', usersController.checkEmail);
+
 module.exports = router;
