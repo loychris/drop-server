@@ -12,7 +12,7 @@ router.post(
         check('email').normalizeEmail().isEmail(),// normalize: Test@test.com => test@test.com
         check('password').isLength({ min: 6 })
     ], 
-    usersController.registerUser);
+    usersController.signup);
 
 router.post('/login', usersController.login);
 

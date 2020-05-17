@@ -1,6 +1,8 @@
 const { validationResult } = require("express-validator");
-const { prepareComment } = require("../util/util");
+const { prepareComment, checkUser } = require("../util/util");
 const Drop = require("../models/drop");
+const User = require("../models/user");
+
 
 const HttpError = require("../models/http-error");
 
@@ -23,11 +25,12 @@ const getDropById = async (req, res, next) => {
 };
 
 const createDrop = async (req, res, next) => {
-  const { title, creator, memeId, source } = req.body;
+  const { title, creator, meme, source } = req.body;
+  let user = checkUser(creator);
   const createdDrop = new Drop({
     title,
     creator,
-    memeId,
+    meme,
     source,
     comments: [],
   });
