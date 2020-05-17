@@ -46,7 +46,6 @@ const signup = async (req, res, next) => {
   res.status(201).json({ user: createdUser });
 }
 
-
 const login = async (req, res, next) => {
   const { identification, password } = req.body;
 
@@ -102,6 +101,7 @@ const checkEmail = async (req, res, next) => {
     res.json({emailExists: false});
   }
 }
+
 
 
 exports.checkHandle = checkHandle;

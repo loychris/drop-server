@@ -15,4 +15,8 @@ router.post("/", dropController.createDrop);
 
 router.post("/:dropId/swipe", dropController.swipeDrop);
 
+router.post("/:dropId/save", dropController.saveDrop);
+
+
+
 module.exports = router;
