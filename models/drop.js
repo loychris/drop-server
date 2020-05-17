@@ -2,14 +2,10 @@ const mongoose = require("mongoose");
 
 const dropSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  creator: { type: String, required: true },
+  creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User'},
   source: { type: String },
   memeId: { type: Number, required: true },
-  comments: [
-    {
-      author: { type: String },
-    },
-  ],
+  comments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}]
 });
 
-module.exports = mongoose.model("post", dropSchema);
+module.exports = mongoose.model("Drop", dropSchema);
