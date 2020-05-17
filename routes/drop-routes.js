@@ -13,4 +13,6 @@ router.patch("/:dropId", dropController.updateDrop);
 
 router.post("/", dropController.createDrop);
 
+router.post("/:dropId/swipe", dropController.swipeDrop);
+
 module.exports = router;

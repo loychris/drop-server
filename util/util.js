@@ -22,6 +22,17 @@ const prepareComment = (comment) => {
 };
 
 
+const prepareDrop = (drop) => {
+  return {
+    title: drop.title,
+    creatorId: drop.creatorId,
+    memeUrl: drop.url,
+    source: drop.source,
+    pinned: drop.pinners.length,
+    comments: drop.comments,
+  }
+}
+
 const checkValidation = (req, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -29,6 +40,7 @@ const checkValidation = (req, next) => {
   }
 }
 
+exports.prepareDrop = prepareDrop;
 exports.checkValidation = checkValidation;
 exports.prepareComment = prepareComment;
 
