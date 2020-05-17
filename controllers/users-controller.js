@@ -10,8 +10,9 @@ const signup = async (req, res, next) => {
   const { name, email, handle, password } = req.body;
   let user;
   try{
-    user = await User.findOne({handle: handle})
+    user = await User.findById(handle);
   }catch(err){
+    console.log(err);
     return next(new HttpError('Register User failed, please try again later.', 500));
   }
   if(user){
@@ -28,7 +29,7 @@ const signup = async (req, res, next) => {
   let createdUser =  new User({
     name,
     email,
-    handle,
+    _id: handle,
     password,
     createdDrops: [],
     writtenComments: []
@@ -56,7 +57,7 @@ const login = async (req, res, next) => {
     let handle = identification
     if(!identification.startsWith('@')) handle = `@${identification}`;
     try {
-      existingUser = await User.findOne({ handle: handle })
+      existingUser = await User.findById(handle)
     } catch (err) {
       return next(new HttpError('Logging in failed, please try again later.', 500));
     }
@@ -71,7 +72,7 @@ const checkHandle = async (req, res, next) => {
   const handle = req.body.handle;
   let user;
   try {
-    user = await User.findOne({ handle: handle })
+    user = await User.findById(handle);
   } catch (err) {
     return next(new HttpError('Checking handle failed, please try again later.', 500));
   }

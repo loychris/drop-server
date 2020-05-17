@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const { prepareComment, checkUser } = require("../util/util");
+const { prepareComment } = require("../util/util");
 const Drop = require("../models/drop");
 const User = require("../models/user");
 
@@ -8,15 +8,11 @@ const HttpError = require("../models/http-error");
 
 const getDropById = async (req, res, next) => {
   const dropId = req.params.dropId;
-  console.log(dropId);
   let drop;
   try {
     drop = await Drop.findById(dropId);
   } catch (err) {
-    console.log(err);
-    return next(
-      new HttpError("Something went wrong, could not find drop", 500)
-    );
+    return next(new HttpError("Something went wrong, could not find drop", 500));
   }
   if (!drop) {
     return next(new HttpError("Could not find drop for the provided id", 404));
@@ -26,15 +22,27 @@ const getDropById = async (req, res, next) => {
 
 const createDrop = async (req, res, next) => {
   const { title, creator, meme, source } = req.body;
-  let user = checkUser(creator);
+  let user;
+  try{
+    user = await User.findOne({ handle: creator })
+  }catch(err){
+    console.log(err);
+    return next(new HttpError("Creating drop failed, please try again", 500));
+  }
+  console.log(user);
+  if (!user) {
+    return next(new HttpError('Could not find user for provided handle', 404));
+  }
   const createdDrop = new Drop({
     title,
     creator,
     meme,
     source,
-    comments: [],
+    leftSwipers: [],
+    rightSwipers: [],
+    pinners: [],
+    comments: []
   });
-  console.log(createdDrop);
   try {
     await createdDrop.save();
   } catch (err) {
@@ -93,7 +101,12 @@ const deleteDrop = async (req, res, next) => {
   res.status(200).json({ message: "Deleted Drop." });
 };
 
+const swipeDrop = async (req, res, next) => {
+
+}
+
 exports.createDrop = createDrop;
 exports.getDropById = getDropById;
 exports.updateDrop = updateDrop;
 exports.deleteDrop = deleteDrop;
+exports.swipeDrop = swipeDrop;
