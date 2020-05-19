@@ -2,23 +2,23 @@ const { validationResult } = require('express-validator');
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
 
-const prepareComment = (comment) => {
+const prepareComment = (c) => {
   const {
+    comment,
     author,
-    cID,
-    upvoters,
-    downvoters,
-    actualComment,
-    subComments,
-  } = comment;
-
+    posted,
+    upVoters,
+    downVoters,
+    subComments
+  } = c;
+  
   return {
-    author,
-    cID,
-    points: upvoters.length - downvoters.length,
-    actualComment,
-    subComments,
-  };
+    comment,
+    authorId: author,
+    posted,
+    score: upVoters.length-downVoters.length,
+    subComments
+  }
 };
 
 

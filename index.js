@@ -9,12 +9,14 @@ const HttpError = require("./models/http-error");
 const memeRoutes = require("./routes/meme-route");
 const dropRoutes = require("./routes/drop-routes");
 const userRoutes = require("./routes/users-routes");
+const commentRoutes = require('./routes/comment-routes');
 
 const app = express();
 const port = 5001;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/api/drop", commentRoutes);
 app.use("/api/drop", dropRoutes);
 app.use("/api/meme", memeRoutes);
 app.use("/api/users", userRoutes);
