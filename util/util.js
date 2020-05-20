@@ -9,10 +9,12 @@ const prepareComment = (c) => {
     posted,
     upVoters,
     downVoters,
-    subComments
+    subComments,
+    _id
   } = c;
   
   return {
+    _id,
     comment,
     authorId: author,
     posted,

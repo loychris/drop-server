@@ -5,17 +5,17 @@ const commentController = require("../controllers/comment-controller");
 
 const router = express.Router();
 
-router.post("/:dropId/comment", commentController.createComment);
+router.post("/drop/:dropId/comment", commentController.createComment);
 
-router.get("/:dropId/comment", commentController.getComments);
+router.get("/:dropId/comment", commentController.getCommentsForDrop);
 
-router.get("/:dropId/comment/:commentId", commentController.getComment);
+router.patch("/comment/:commentId", commentController.updateComment);
+
+router.get("/comment/:commentId", commentController.getComment);
 
 // router.delete("/:commentId", commentController.deleteComment);
 
-// router.patch("/:commentId", commentController.updateComment);
-
-// router.post("/:commentId/vote", commentController.voteComment);
+router.post("/comment/:commentId/vote", commentController.voteComment);
 
 // router.post("/:commentId/sub", commentController.createSubComment);
 

@@ -16,7 +16,7 @@ const port = 5001;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use("/api/drop", commentRoutes);
+app.use("/api", commentRoutes);
 app.use("/api/drop", dropRoutes);
 app.use("/api/meme", memeRoutes);
 app.use("/api/users", userRoutes);

@@ -14,7 +14,9 @@ const userSchema = new Schema({
     swipedLeftDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
     swipedRightDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
     savedDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
-    writtenComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}]
+    writtenComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}],
+    upVotedComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}],
+    downVotedComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}]
 });
 
 userSchema.plugin(uniqueValidator);
