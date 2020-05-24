@@ -40,11 +40,9 @@ const createComment = async (req, res, next) => {
 
 const getCommentsForDrop = async (req, res, next) => {
     const dropId = req.params.dropId;
-    const drop = await getDropFromDB(dropId);
+    const drop = await getDropFromDB(dropId, next);
     const ids = drop.comments;
-    console.log(ids);
     const comments = await Comment.find().where('_id').in(ids).exec();
-    console.log(comments);
     res.json({comments: comments.map(c => {return prepareComment(c)})})
 }
 
@@ -70,39 +68,101 @@ const updateComment = async (req, res, next) => {
     res.json(preparedComment);
 }
 
+// const deleteComment = async (req, res, next) => {
+//   const commentId = req.params.commentId
+//   const comment = await getCommnetFromDB(commentId, next);
+//   const author = await getUserFromDB(comment.author, next);
+//   const drop = await getDropFromDB(comment.drop, next);
+//   try{
+//     const sess = await mongoose.startSession();
+//     sess.startTransaction();
+//     author.writtenComments.pull(commentId);
+//     author.save({session: sess});
+//     drop.comments.pull(commentId);
+//     drop.save({session: sess});
+//     console.log(comment);
+//     Comment.deleteOne({_id: commentId },{session: sess}, console.log("DELETED"));
+//     await sess.commitTransaction();
+//   }catch(err){
+//     return next(new HttpError("Could not delete Comment. Try again later", 500));
+//   }
+//   res.status(200).json({message: "Deleted Comment."});
+// }
+
 
 const voteComment = async (req, res, next) => {
   const commentId = req.params.commentId;
   const { voterId, vote } = req.body;
   let comment = await getCommnetFromDB(commentId, next);
   let voter = await getUserFromDB(voterId, next);
-  const sess = await mongoose.startSession();
-  sess.startTransaction();
-  comment.upVoters.pull(voterId);
-  comment.downVoters.pull(voterId);
-  voter.upVotedComments.pull(commentId);
-  voter.downVotedComments.pull(commentId);
-  if(vote === "up"){
-    comment.upVoters.push({_id: voterId});
-    await comment.save({session: sess});
-    voter.upVotedComments.push(comment);
-    await voter.save({session: sess});
-  } else if(vote === "down"){
-    comment.downVoters.push(voterId);
-    await comment.save({session: sess});
-    voter.downVotedComments.push(comment);
-    await voter.save({session: sess});
-  } else {
-    return next(new HttpError("Invalid argument for vote", 500));
+  try{
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    comment.upVoters.pull(voterId);
+    comment.downVoters.pull(voterId);
+    voter.upVotedComments.pull(commentId);
+    voter.downVotedComments.pull(commentId);
+    if(vote === "up"){
+      comment.upVoters.push({_id: voterId});
+      await comment.save({session: sess});
+      voter.upVotedComments.push(comment);
+      await voter.save({session: sess});
+    } else if(vote === "down"){
+      comment.downVoters.push(voterId);
+      await comment.save({session: sess});
+      voter.downVotedComments.push(comment);
+      await voter.save({session: sess});
+    } else {
+      return next(new HttpError("Invalid argument for vote", 500));
+    }
+    await sess.commitTransaction();
+  }catch(err){
+    console.log(err);
+    return next(new HttpError("Something went wrong. Couldn't vote comment")); 
   }
-  console.log(voter);
-  await sess.commitTransaction();
   const preparedComment = prepareComment(comment);
   res.status(200).json(preparedComment);
 }
 
+const createSubComment = async (req, res, next) => {
+  const { authorId, actualComment, parentPath } = req.body;
+  const commentId = req.params.commentId;
+  const parentPathArr = parentPath.split('/');
+  const author = await getUserFromDB(authorId, next);
+  const comment = await getCommnetFromDB(commentId, next);
+  const numberOfSiblings = comment.subComments
+    .filter(sub => sub.path.startsWith(parentPath))
+    .filter(sub => sub.path.split.length === parentPathArr.length +1)  
+    .length;
+  const path = `${parentPath}/${numberOfSiblings}`
+  const subComment = {
+    actualComment,
+    author,
+    path,
+    posted: new Date(),
+    upVoters: [],
+    downVoters: []
+  }
+  try{
+    comment.subComments.push(subComment);
+    comment.save();
+  }catch(err){
+    console.log("gosrgjoisnoesn", err);
+  }
+  console.log(`
+  authorId:              ${authorId}
+  commentId:             ${commentId}
+  parentPath             ${parentPath}
+  parentPathArr:         ${parentPathArr}
+  numberOfSiblings       ${numberOfSiblings}
+  path:                  ${path}
+  `)
+  res.status(201).json(comment);
+}
 
-const createSubComment = async (req, res, next) => {}
+
+
+
 const deleteSubComment = async (req, res, next) => {}
 const voteSubComment = async (req, res, next) => {}
 

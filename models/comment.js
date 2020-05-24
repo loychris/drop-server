@@ -4,7 +4,7 @@ const uniqueValidator = require('mongoose-unique-validator');
 const Schema = mongoose.Schema;
 
 
-const userSchema = new Schema({
+const commentSchema = new Schema({
     comment: { type: String },
     drop: { type: mongoose.Types.ObjectId, ref: 'Drop'},
     author: { type: mongoose.Types.ObjectId, ref: 'User'},
@@ -13,16 +13,16 @@ const userSchema = new Schema({
     upVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     downVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     subComments: [{
-        comment: { type: String },
+        actualComment: { type: String },
         author: { type: mongoose.Types.ObjectId, ref: 'User'},
-        drop: { type: mongoose.Types.ObjectId, ref: 'Drop'},
         path: {type: String, required: true },
         posted: { type: Date, required: true },
+        lastModified: { type: Date },
         upVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
         downVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}]
     }]
 });
 
-userSchema.plugin(uniqueValidator);
+commentSchema.plugin(uniqueValidator);
 
-module.exports = mongoose.model('Comment', userSchema);
+module.exports = mongoose.model('Comment', commentSchema);

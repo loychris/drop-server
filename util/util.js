@@ -24,6 +24,8 @@ const prepareComment = (c) => {
 };
 
 
+
+
 const prepareDrop = (drop) => {
   return {
     title: drop.title,

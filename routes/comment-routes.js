@@ -7,17 +7,17 @@ const router = express.Router();
 
 router.post("/drop/:dropId/comment", commentController.createComment);
 
-router.get("/:dropId/comment", commentController.getCommentsForDrop);
+router.get("/drop/:dropId/comment", commentController.getCommentsForDrop);
 
 router.patch("/comment/:commentId", commentController.updateComment);
 
 router.get("/comment/:commentId", commentController.getComment);
 
-// router.delete("/:commentId", commentController.deleteComment);
+// router.delete("/comment/:commentId", commentController.deleteComment);
 
 router.post("/comment/:commentId/vote", commentController.voteComment);
 
-// router.post("/:commentId/sub", commentController.createSubComment);
+router.post("/comment/:commentId/sub", commentController.createSubComment);
 
 // router.post("/:commentId/delSub", commentController.deleteSubComment);
 

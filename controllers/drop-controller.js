@@ -45,6 +45,7 @@ const createDrop = async (req, res, next) => {
     pinners: [],
     comments: []
   });
+  console.log(createdDrop); 
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
