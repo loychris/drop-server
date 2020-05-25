@@ -130,11 +130,12 @@ const createSubComment = async (req, res, next) => {
   const parentPathArr = parentPath.split('/');
   const author = await getUserFromDB(authorId, next);
   const comment = await getCommnetFromDB(commentId, next);
-  const numberOfSiblings = comment.subComments
-    .filter(sub => sub.path.startsWith(parentPath))
-    .filter(sub => sub.path.split.length === parentPathArr.length +1)  
-    .length;
-  const path = `${parentPath}/${numberOfSiblings}`
+  if(!(parentPath === "0" || comment.subComments.some(x => x.path === parentPath))){
+    return next(new HttpError("Invalid parent path. There is np subComment with that path!"))
+  }
+  const sameDepth = comment.subComments.filter(x => x.path.split('/').length === parentPathArr.length + 1);
+  const siblings = sameDepth.filter(s => s.path.startsWith(parentPath));
+  const path = `${parentPath}/${siblings.length}`
   const subComment = {
     actualComment,
     author,
@@ -149,15 +150,7 @@ const createSubComment = async (req, res, next) => {
   }catch(err){
     console.log("gosrgjoisnoesn", err);
   }
-  console.log(`
-  authorId:              ${authorId}
-  commentId:             ${commentId}
-  parentPath             ${parentPath}
-  parentPathArr:         ${parentPathArr}
-  numberOfSiblings       ${numberOfSiblings}
-  path:                  ${path}
-  `)
-  res.status(201).json(comment);
+  res.status(201).json(subComment);
 }
 
 

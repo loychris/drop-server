@@ -39,7 +39,7 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    "mongodb+srv://Chris:OSb9ZEBM66Txcf5F@dropcluster-52lyz.mongodb.net/stream?retryWrites=true&w=majority",
+    "mongodb+srv://Chris:f80sER7cwWvmfuqA@dropcluster-52lyz.mongodb.net/stream?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
