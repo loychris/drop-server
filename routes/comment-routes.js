@@ -21,6 +21,6 @@ router.post("/comment/:commentId/sub", commentController.createSubComment);
 
 router.post("/comment/:commentId/delSub", commentController.deleteSubComment);
 
-// router.post("/:commentId/voteSub", commentController.voteSubComment);
+router.post("/comment/:commentId/voteSub", commentController.voteSubComment);
 
 module.exports = router;

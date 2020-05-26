@@ -15,7 +15,7 @@ const createComment = async (req, res, next) => {
     const createdComment = new Comment({
         comment,
         drop,
-        author,
+        author: authorId,
         posted: new Date(),
         upVoters: [],
         downVoters: [],
@@ -154,6 +154,7 @@ const createSubComment = async (req, res, next) => {
     downVoters: []
   }
   try{
+    
     comment.subComments.push(subComment);
     comment.save();
   }catch(err){
@@ -167,24 +168,13 @@ const deleteSubComment = async (req, res, next) => {
   const commentId = req.params.commentId;
   const { path } = req.body;
   const comment = await getCommnetFromDB(commentId, next);
-
-  if(!path.startsWith('0/') || !comment.subComments.some(c => c.path === path)){
+  if(!comment.subComments.some(s => s.path === path)){
     return next(new HttpError('Invalid path. There is no SubComment with that path.')); 
   }
   const subCommentsNew = comment.subComments.filter(c => !c.path.startsWith(path));
-  // TODO: refactor tree
-  console.log(`
-    path:         ${path}
-    subComments:  
-      ${comment.subComments.map(c => c.path)}
-    ///////
-    subCommentsNew: 
-      ${subCommentsNew.map(c => c.path)}  
-  `)
   try{
     comment.subComments = subCommentsNew;
     comment.save()
-    // TODO: delete ref in User
   }catch(err){
     return next(new HttpError("Something went wrong while deleting SubComment. Please try again later", 500));
   }
@@ -192,7 +182,37 @@ const deleteSubComment = async (req, res, next) => {
 }
 
 
-const voteSubComment = async (req, res, next) => {}
+const voteSubComment = async (req, res, next) => {
+  const commentId = req.params.commentId;
+  const { path, voterId, vote } = req.body;
+  const comment = await getCommnetFromDB(commentId, next);
+  const voter = await getUserFromDB(voterId, next);
+  const subComment = comment.subComments.find(s => s.path === path);
+  if(!subComment){
+    return next(new HttpError('Invalid path. There is no SubComment with that path.'));
+  }
+  comment.subComments.pull({ path: path });
+  subComment.upVoters.pull(voterId);
+  subComment.downVoters.pull(voterId);
+
+  if(vote === "up"){
+    subComment.upVoters.push(voterId);
+    voter.upVotedSubComments.push({ comment, path });
+  }else if(vote === "down"){
+    subComment.downVoters.push(voterId);
+    voter.downVotedSubComments.push({ comment, path });
+  }
+
+  comment.subComments.push(subComment);
+
+  const sess = await mongoose.startSession();
+  sess.startTransaction();
+  comment.save({session: sess})
+  voter.save({session: sess})
+  await sess.commitTransaction();
+
+  res.json(subComment);
+}
 
 
 const getDropFromDB = async (dropId, next) => {     
@@ -233,6 +253,7 @@ const getUserFromDB = async (userId, next) => {
       }
       return user;
 }
+
 
 exports.createComment = createComment;
 exports.getCommentsForDrop = getCommentsForDrop;
