@@ -135,7 +135,16 @@ const createSubComment = async (req, res, next) => {
   }
   const sameDepth = comment.subComments.filter(x => x.path.split('/').length === parentPathArr.length + 1);
   const siblings = sameDepth.filter(s => s.path.startsWith(parentPath));
-  const path = `${parentPath}/${siblings.length}`
+  const siblingNumbers = siblings.map(s => Number(s.path.split('/').slice(-1)[0])); 
+  
+  const ending = siblingNumbers.length > 0 ? Math.max(...siblingNumbers)+1 : 0;
+
+  const path = `${parentPath}/${ending}`; 
+  console.log(`
+    siblingsNumbers: ${siblingNumbers}
+    ending:       ${ending}
+    path:         ${path}
+  `)
   const subComment = {
     actualComment,
     author,
@@ -150,13 +159,29 @@ const createSubComment = async (req, res, next) => {
   }catch(err){
     console.log("gosrgjoisnoesn", err);
   }
-  res.status(201).json(subComment);
+  res.status(201).json(comment.subComments.map(c => c.path));
 }
 
 
+const deleteSubComment = async (req, res, next) => {
+  const commentId = req.params.commentId;
+  const { path } = req.body;
+  const comment = await getCommnetFromDB(commentId, next);
+  if(!path.startsWith('0/') || !subComments.some(c => c.path === path)){
+    return next(new HttpError('Invalid path. There is no SubComment with that path.')); 
+  }
+  const subCommentsNew = comment.subComments.filter(c => c.path.startsWith(path));
+  // TODO: refactor tree
+  try{
+    comment.subComments = subCommentsNew;
+    comment.save()
+    // TODO: delete ref in User
+  }catch(err){
+    return next(new HttpError("Something went wrong while deleting SubComment. Please try again later", 500));
+  }
+}
 
 
-const deleteSubComment = async (req, res, next) => {}
 const voteSubComment = async (req, res, next) => {}
 
 

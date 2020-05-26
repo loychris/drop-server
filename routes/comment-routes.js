@@ -19,7 +19,7 @@ router.post("/comment/:commentId/vote", commentController.voteComment);
 
 router.post("/comment/:commentId/sub", commentController.createSubComment);
 
-// router.post("/:commentId/delSub", commentController.deleteSubComment);
+router.post("/:commentId/delSub", commentController.deleteSubComment);
 
 // router.post("/:commentId/voteSub", commentController.voteSubComment);
 
