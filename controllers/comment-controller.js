@@ -167,11 +167,20 @@ const deleteSubComment = async (req, res, next) => {
   const commentId = req.params.commentId;
   const { path } = req.body;
   const comment = await getCommnetFromDB(commentId, next);
-  if(!path.startsWith('0/') || !subComments.some(c => c.path === path)){
+
+  if(!path.startsWith('0/') || !comment.subComments.some(c => c.path === path)){
     return next(new HttpError('Invalid path. There is no SubComment with that path.')); 
   }
-  const subCommentsNew = comment.subComments.filter(c => c.path.startsWith(path));
+  const subCommentsNew = comment.subComments.filter(c => !c.path.startsWith(path));
   // TODO: refactor tree
+  console.log(`
+    path:         ${path}
+    subComments:  
+      ${comment.subComments.map(c => c.path)}
+    ///////
+    subCommentsNew: 
+      ${subCommentsNew.map(c => c.path)}  
+  `)
   try{
     comment.subComments = subCommentsNew;
     comment.save()
@@ -179,6 +188,7 @@ const deleteSubComment = async (req, res, next) => {
   }catch(err){
     return next(new HttpError("Something went wrong while deleting SubComment. Please try again later", 500));
   }
+  res.status(200).json(comment.subComments.map(c => c.path).sort());
 }
 
 
