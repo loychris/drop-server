@@ -13,13 +13,22 @@ const prepareComment = (c) => {
     _id
   } = c;
   
+  const subs = subComments.map(s => {
+    return {
+      path: s.path,
+      score: s.upVoters.length-s.downVoters.length,
+      actualComment: s.actualComment,
+      posted: s.posted
+    }
+  })
+
   return {
     _id,
     comment,
     authorId: author,
     posted,
     score: upVoters.length-downVoters.length,
-    subComments
+    subComments: subs
   }
 };
 

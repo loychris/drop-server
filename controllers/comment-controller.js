@@ -191,7 +191,11 @@ const voteSubComment = async (req, res, next) => {
   if(!subComment){
     return next(new HttpError('Invalid path. There is no SubComment with that path.'));
   }
-  comment.subComments.pull({ path: path });
+  const subComments = comment.subComments.filter(s => s.path !== path);
+
+  const sess = await mongoose.startSession();
+  sess.startTransaction();
+
   subComment.upVoters.pull(voterId);
   subComment.downVoters.pull(voterId);
 
@@ -203,14 +207,12 @@ const voteSubComment = async (req, res, next) => {
     voter.downVotedSubComments.push({ comment, path });
   }
 
-  comment.subComments.push(subComment);
-
-  const sess = await mongoose.startSession();
-  sess.startTransaction();
+  subComments.push(subComment);
+  comment.subComments = subComments;
+  
   comment.save({session: sess})
   voter.save({session: sess})
   await sess.commitTransaction();
-
   res.json(subComment);
 }
 
