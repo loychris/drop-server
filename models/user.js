@@ -10,32 +10,28 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 6 },
     joined: { type: Date, required: true },
+
     createdDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
     swipedLeftDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
     swipedRightDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
     savedDrops: [{ type: mongoose.Types.ObjectId, ref: 'Drop'}],
+
     writtenComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}],
     upVotedComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}],
     downVotedComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}],
-    writtenSubComments: [
-        {   
+
+    writtenSubComments: [{ 
             comment: { type: mongoose.Types.ObjectId, required: true, ref: 'Comment'},
             path: {type: String, required: true}
-        }
-    ],
-    upVotedSubComments: [
-        {   
+        }],
+    upVotedSubComments: [{   
             comment: { type: mongoose.Types.ObjectId, required: true, ref: 'Comment'},
             path: {type: String, required: true}
-        }
-    ],
-    downVotedSubComments: [
-        {   
+        }],
+    downVotedSubComments: [{   
             comment: { type: mongoose.Types.ObjectId, required: true, ref: 'Comment'},
             path: {type: String, required: true}
-        }
-    ]
-    
+        }]
 });
 
 userSchema.plugin(uniqueValidator);

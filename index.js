@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-var bodyParser = require('body-parser')
+const bodyParser = require('body-parser')
 
 
 const HttpError = require("./models/http-error");
@@ -37,9 +37,10 @@ app.use((error, req, res, next) => {
   });
 });
 
+console.log("trying to connect to the db...");
 mongoose
   .connect(
-    "mongodb+srv://Chris:f80sER7cwWvmfuqA@dropcluster-52lyz.mongodb.net/stream?retryWrites=true&w=majority",
+    "mongodb+srv://Chris:CYbHqmHT4SU9kDHP@dropcluster-52lyz.mongodb.net/<dbname>?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {

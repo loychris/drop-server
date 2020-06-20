@@ -1,5 +1,7 @@
 
 const Isemail = require('isemail');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const HttpError = require('../models/http-error');
 const { checkValidation } = require('../util/util');
@@ -26,11 +28,18 @@ const signup = async (req, res, next) => {
   if(user){
     return next(new HttpError(`There already exists an account with your email. Please log in or choose another email.`, 422))
   }
+  let hashedPassword;
+  try{
+    hashedPassword = await bcrypt.hash(password, 12); 
+  }catch(err){
+    return next(new HttpError('Could not create User, please try again', 500));
+  }
+
   let createdUser =  new User({
     name,
     email,
     handle,
-    password,
+    password: hashedPassword,
     joined: new Date(),
     createdDrops: [],
     swipedLeftDrops: [],
@@ -43,7 +52,20 @@ const signup = async (req, res, next) => {
   } catch(err) {
       return next(new HttpError('Register User failed, please try again later.', 500))
   }
-  res.status(201).json({ user: createdUser });
+
+  let token;
+  try{
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      'supersecret_private_key_dont_share',
+      { expiresIn: '1h' }
+    );
+  }catch(err){
+    return next(new HttpError('Register User failed, please try again later.', 500))
+  }
+
+
+  res.status(201).json({ userId: createdUser.id, email: createdUser.email, token: token });
 }
 
 const login = async (req, res, next) => {
@@ -65,9 +87,27 @@ const login = async (req, res, next) => {
       return next(new HttpError('Logging in failed, please try again later.', 500));
     }
   }
-  if (!existingUser || existingUser.password !== password) {
-    return next(new HttpError('Invalid credentials, could not log you in.', 401));
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, existingUser.password);
+  }catch(err){
+    return next(new HttpError('Could not log you in please check your credentials and try again', 500)); 
   }
+  if(!isValidPassword){
+    return next(new HttpError('Invalid Credentials, could not log you in.', 401));
+  }
+
+  let token;
+  try{
+    token = jwt.sign(
+      { userId: existingUser.id, email: existingUser.email },
+      'supersecret_private_key_dont_share',
+      { expiresIn: '1h' }
+    );
+  }catch(err){
+    return next(new HttpError('Register User failed, please try again later.', 500))
+  }
+
   res.json({message: 'Logged in!'});
 };
 
