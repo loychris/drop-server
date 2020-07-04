@@ -108,7 +108,11 @@ const login = async (req, res, next) => {
     return next(new HttpError('Register User failed, please try again later.', 500))
   }
 
-  res.json({message: 'Logged in!'});
+  res.json({
+    userId: existingUser.id,
+    email: existingUser.email,
+    token: token
+  });
 };
 
 const checkHandle = async (req, res, next) => {

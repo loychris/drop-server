@@ -10,16 +10,28 @@ const memeRoutes = require("./routes/meme-route");
 const dropRoutes = require("./routes/drop-routes");
 const userRoutes = require("./routes/users-routes");
 const commentRoutes = require('./routes/comment-routes');
+const extensionRoutes = require('./routes/extension-routes');
+
 
 const app = express();
 const port = 5001;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  res.setHeader('Access-Controll-Allow-Methods', 'GET, POST, PATCH, DELETE')
+  next();
+});
+app.use("/api/extension", extensionRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api", commentRoutes);
 app.use("/api/drop", dropRoutes);
 app.use("/api/meme", memeRoutes);
-app.use("/api/users", userRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);
@@ -45,6 +57,7 @@ mongoose
   )
   .then(() => {
     console.log("Connected to db");
+    console.log(`Listening on port ${port}`)
     app.listen(port);
   })
   .catch((err) => {
