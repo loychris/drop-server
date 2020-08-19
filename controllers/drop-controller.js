@@ -6,6 +6,19 @@ const Drop = require("../models/drop");
 const User = require("../models/user");
 const HttpError = require("../models/http-error");
 
+//-----------------------------------------------------------------------------------
+
+const getAllDrops = async (req, res, next) => {
+  let drops = [];
+  try{
+    drops = await Drop.find({});
+  }catch(err){
+    return next(new HttpError("Something went wrong, could not get all drops", 500));
+  }
+  res.json(drops);
+}
+
+//-----------------------------------------------------------------------------------
 
 const getDropById = async (req, res, next) => {
   const dropId = req.params.dropId;
@@ -22,6 +35,18 @@ const getDropById = async (req, res, next) => {
   const preparedDrop = prepareDrop(drop)
   res.json({ drop: preparedDrop});
 };
+
+//-----------------------------------------------------------------------------------
+
+const getCommentsForDrop = async (req, res, next) => {
+  const dropId = req.params.dropId;
+  const drop = await getDropFromDB(dropId, next);
+  const ids = drop.comments;
+  const comments = await Comment.find().where('_id').in(ids).exec();
+  res.json({comments: comments.map(c => {return prepareComment(c)})})
+}
+
+//-----------------------------------------------------------------------------------
 
 const createDrop = async (req, res, next) => {
   const { title, creatorId, meme, source } = req.body;
@@ -60,6 +85,8 @@ const createDrop = async (req, res, next) => {
   res.status(201).json({ Drop: createdDrop });
 };
 
+//-----------------------------------------------------------------------------------
+
 const updateDrop = async (req, res, next) => {
   const { title, meme, source } = req.body;
   const dropId = req.params.dropId;
@@ -84,6 +111,8 @@ const updateDrop = async (req, res, next) => {
   res.status(200).json({ drop: preparedDrop });
 };
 
+//-----------------------------------------------------------------------------------
+
 const deleteDrop = async (req, res, next) => {
   const dropId = req.params.dropId;
   let drop;
@@ -102,6 +131,8 @@ const deleteDrop = async (req, res, next) => {
   }
   res.status(200).json({ message: "Deleted Drop." });
 };
+
+//-----------------------------------------------------------------------------------
 
 const swipeDrop = async (req, res, next) => {
   const dropId = req.params.dropId;
@@ -128,6 +159,8 @@ const swipeDrop = async (req, res, next) => {
   res.status(200).json({message: "swiped successfully."})
 }
 
+//-----------------------------------------------------------------------------------
+
 const saveDrop = async (req, res, next) => {
   const dropId = req.params.dropId;
   const { userId } = req.body; 
@@ -148,6 +181,8 @@ const saveDrop = async (req, res, next) => {
   res.status(200).json({message: "Drop saved successfully."})
 }
 
+//-----------------------------------------------------------------------------------
+
 const getUser = async (id, next) => {
   let user;
   try{
@@ -161,7 +196,10 @@ const getUser = async (id, next) => {
   return user;
 }
 
+//-----------------------------------------------------------------------------------
+
 const getDrop = async (id, next) => {
+  let drop;
   try {
     drop = await Drop.findById(id);
   } catch (err) {
@@ -173,7 +211,20 @@ const getDrop = async (id, next) => {
   return drop;
 }
 
+const getAllDropIds = async (req, res, next) => {
+  let drops;
+  try{
+    drops = await Drop.find({});
+  }catch(err){
+    return next(new HttpError('Sonething went wrong. could not get all ids', 500));
+  }
+  const ids = drops.map(d => d._id);
+  res.json(ids);
+}
 
+exports.getAllDropIds = getAllDropIds;
+exports.getAllDrops = getAllDrops; 
+exports.getCommentsForDrop = getCommentsForDrop;
 exports.saveDrop = saveDrop; 
 exports.createDrop = createDrop;
 exports.getDropById = getDropById;

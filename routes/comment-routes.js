@@ -7,9 +7,8 @@ const commentController = require("../controllers/comment-controller");
 
 const router = express.Router();
 
-router.get("/drop/:dropId/comment", commentController.getCommentsForDrop);
 router.get("/comment/:commentId", commentController.getComment);
-router.use(checkAuth);
+//router.use(checkAuth);
 router.patch("/comment/:commentId", commentController.updateComment);
 // router.delete("/comment/:commentId", commentController.deleteComment);
 router.post("/drop/:dropId/comment", commentController.createComment);

@@ -14,7 +14,7 @@ const extensionRoutes = require('./routes/extension-routes');
 
 
 const app = express();
-const port = 5001;
+const port = 5000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -52,7 +52,7 @@ app.use((error, req, res, next) => {
 console.log("trying to connect to the db...");
 mongoose
   .connect(
-    "mongodb+srv://Chris:CYbHqmHT4SU9kDHP@dropcluster-52lyz.mongodb.net/<dbname>?retryWrites=true&w=majority",
+    "mongodb+srv://Chris:5qrIXzOdsVaaut7e@dropcluster-52lyz.mongodb.net/stream?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {

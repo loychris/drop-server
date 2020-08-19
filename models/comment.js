@@ -10,6 +10,7 @@ const commentSchema = new Schema({
     author: { type: mongoose.Types.ObjectId, ref: 'User'},
     posted: { type: Date, required: true },
     lastModified: { type: Date },
+    deleted: { type: Boolean },
     upVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     downVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     subComments: [{

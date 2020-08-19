@@ -38,14 +38,6 @@ const createComment = async (req, res, next) => {
     res.status(201).json(preparedComment);
 }
 
-const getCommentsForDrop = async (req, res, next) => {
-    const dropId = req.params.dropId;
-    const drop = await getDropFromDB(dropId, next);
-    const ids = drop.comments;
-    const comments = await Comment.find().where('_id').in(ids).exec();
-    res.json({comments: comments.map(c => {return prepareComment(c)})})
-}
-
 const getComment = async (req, res, next) => {
     const commentId = req.params.commentId;
     const comment = await getCommnetFromDB(commentId, next);
@@ -68,26 +60,29 @@ const updateComment = async (req, res, next) => {
     res.json(preparedComment);
 }
 
-// const deleteComment = async (req, res, next) => {
-//   const commentId = req.params.commentId
-//   const comment = await getCommnetFromDB(commentId, next);
-//   const author = await getUserFromDB(comment.author, next);
-//   const drop = await getDropFromDB(comment.drop, next);
-//   try{
-//     const sess = await mongoose.startSession();
-//     sess.startTransaction();
-//     author.writtenComments.pull(commentId);
-//     author.save({session: sess});
-//     drop.comments.pull(commentId);
-//     drop.save({session: sess});
-//     console.log(comment);
-//     Comment.deleteOne({_id: commentId },{session: sess}, console.log("DELETED"));
-//     await sess.commitTransaction();
-//   }catch(err){
-//     return next(new HttpError("Could not delete Comment. Try again later", 500));
-//   }
-//   res.status(200).json({message: "Deleted Comment."});
-// }
+const deleteComment = async (req, res, next) => {
+  const commentId = req.params.commentId
+  let comment;
+  try {
+    comment = await getCommnetFromDB(commentId, next);
+  }catch(err){
+    return next(new HttpError('There was a problem finding the commen'))
+  }
+  try{
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    author.writtenComments.pull(commentId);
+    author.save({session: sess});
+    drop.comments.pull(commentId);
+    drop.save({session: sess});
+    await sess.commitTransaction();
+  }catch(err){
+    return next(new HttpError("Could not delete Comment. Try again later", 500));
+  }
+  res.status(200).json({message: "Deleted Comment."});
+}
+
+
 
 
 const voteComment = async (req, res, next) => {
@@ -256,9 +251,19 @@ const getUserFromDB = async (userId, next) => {
       return user;
 }
 
+const getAllComments = async (req, res, next) => {
+  let comments;
+  try{
+    comments = await Comment.find({});
+  }catch(err){
+    return next(new HttpError('Something went wrong while fetching the comments', 500));
+  }
+  res.json(comments);
+}
 
+
+exports.getAllComments = getAllComments;
 exports.createComment = createComment;
-exports.getCommentsForDrop = getCommentsForDrop;
 exports.getComment = getComment;
 // exports.deleteComment = deleteComment;
 exports.updateComment = updateComment;
