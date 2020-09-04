@@ -1,5 +1,7 @@
 const { validationResult } = require("express-validator");
 const mongoose = require('mongoose');
+const path = require('path');
+const fs = require('fs');
 
 const { prepareDrop, prepareComment } = require("../util/util");
 const Drop = require("../models/drop");
@@ -49,20 +51,32 @@ const getCommentsForDrop = async (req, res, next) => {
 //-----------------------------------------------------------------------------------
 
 const createDrop = async (req, res, next) => {
-  const { title, creatorId, meme, source } = req.body;
+  const { title, creatorId, source } = req.body;
+  if(!req.file){
+    return next(new HttpError('No file received', 400));
+  }
+
+  // handle file saving
+  const file = req.file; 
+  const filePath = path.join(__dirname.split('/').slice(0, -1).join('/'), 'DB', file.originalname);
+  fs.writeFileSync(filePath, file);
+
+  // update user
   let user;
   try{
-    user = await User.findById(creatorId);
+    user = await User.findById(creatorId)//.session(sess);
   }catch(err){
     return next(new HttpError("Creating drop failed, please try again", 500));
   }
   if (!user) {
     return next(new HttpError('Could not find user for provided id', 404));
   }
+  console.log(file.originalname);
+
   const createdDrop = new Drop({
     title,
     creatorId,
-    meme,
+    meme: filePath,
     source,
     posted: new Date(),
     leftSwipers: [],
@@ -72,15 +86,17 @@ const createDrop = async (req, res, next) => {
   });
   console.log(createdDrop); 
   try {
-    const sess = await mongoose.startSession();
-    sess.startTransaction();
-    await createdDrop.save({session: sess});
-    user.createdDrops.push(createdDrop);
-    await user.save({session: sess});
-    await sess.commitTransaction();
-  } catch (err) {
+    await createdDrop.save();
+  }catch(err){
     console.log(err);
-    return next(new HttpError("Creating drop failed, please try again", 500));
+    return next(new HttpError('Creating drop failed, please try again', 500));
+  }
+  user.createdDrops.push(createdDrop);
+  try{
+    await user.save();
+  }catch(err){
+    console.log(err);
+    return next(new HttpError('Creating drop failed, please try again', 500));
   }
   res.status(201).json({ Drop: createdDrop });
 };

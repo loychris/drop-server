@@ -10,7 +10,6 @@ module.exports = (req, res, next) => {
         }
         const decodedToken = jwt.verity(token, 'supersecret_private_key_dont_share');
         req.userData = { userId: decodedToken.userId }
-
         next(); 
     }catch(err){
         return next(new HttpError('Authentification failed!', 401));

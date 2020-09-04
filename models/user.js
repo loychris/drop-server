@@ -19,19 +19,18 @@ const userSchema = new Schema({
     writtenComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}],
     upVotedComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}],
     downVotedComments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}],
-
     writtenSubComments: [{ 
             comment: { type: mongoose.Types.ObjectId, required: true, ref: 'Comment'},
             path: {type: String, required: true}
-        }],
+    }],
     upVotedSubComments: [{   
             comment: { type: mongoose.Types.ObjectId, required: true, ref: 'Comment'},
             path: {type: String, required: true}
-        }],
+    }],
     downVotedSubComments: [{   
             comment: { type: mongoose.Types.ObjectId, required: true, ref: 'Comment'},
             path: {type: String, required: true}
-        }]
+    }]
 });
 
 userSchema.plugin(uniqueValidator);

@@ -10,7 +10,6 @@ const User = require('../models/user');
 const signup = async (req, res, next) => {
   checkValidation(req, next);
   const { name, email, handle, password } = req.body;
-  const date = new Date();
   let user;
   try{
     user = await User.findOne({handle: handle})
