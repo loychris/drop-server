@@ -4,6 +4,6 @@ const memeControllers = require("../controllers/meme-controller");
 
 const router = express.Router();
 
-router.get("/:dropId", memeControllers.getMemeByDropId);
+router.get("/:postId", memeControllers.getMemeById);
 
 module.exports = router;

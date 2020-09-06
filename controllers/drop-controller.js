@@ -64,7 +64,7 @@ const createDrop = async (req, res, next) => {
   // update user
   let user;
   try{
-    user = await User.findById(creatorId);
+    user = await User.findById(creatorId)//.session(sess);
   }catch(err){
     return next(new HttpError("Creating drop failed, please try again", 500));
   }
@@ -74,8 +74,10 @@ const createDrop = async (req, res, next) => {
   console.log(file.originalname);
 
   const createdDrop = new Drop({
-    ...req.body, 
-    meme: file.originalname,
+    title,
+    creatorId,
+    meme: filePath,
+    source,
     posted: new Date(),
     leftSwipers: [],
     rightSwipers: [],
@@ -96,7 +98,7 @@ const createDrop = async (req, res, next) => {
     console.log(err);
     return next(new HttpError('Creating drop failed, please try again', 500));
   }
-  res.status(201).json(createdDrop);
+  res.status(201).json({ Drop: createdDrop });
 };
 
 //-----------------------------------------------------------------------------------
@@ -224,8 +226,6 @@ const getDrop = async (id, next) => {
   }
   return drop;
 }
-
-//-----------------------------------------------------------------------------------
 
 const getAllDropIds = async (req, res, next) => {
   let drops;
