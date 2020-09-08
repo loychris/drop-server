@@ -22,14 +22,11 @@ const createComment = async (req, res, next) => {
         subComments: []
     });
     try {
-        const sess = await mongoose.startSession();
-        sess.startTransaction();
-        await createdComment.save({session: sess}),
+        await createdComment.save(),
         author.writtenComments.push(createdComment);
-        await author.save({session: sess});
+        await author.save();
         drop.comments.push(createdComment);
-        await drop.save({session: sess});
-        await sess.commitTransaction();
+        await drop.save();
     } catch(err){
         console.log(err);
         return next(new HttpError("Creating comment failed, please try again", 500))

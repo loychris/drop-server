@@ -6,6 +6,7 @@ const fs = require('fs');
 const { prepareDrop, prepareComment } = require("../util/util");
 const Drop = require("../models/drop");
 const User = require("../models/user");
+const Comment = require('../models/comment');
 const HttpError = require("../models/http-error");
 
 //-----------------------------------------------------------------------------------
@@ -42,7 +43,15 @@ const getDropById = async (req, res, next) => {
 
 const getCommentsForDrop = async (req, res, next) => {
   const dropId = req.params.dropId;
-  const drop = await getDropFromDB(dropId, next);
+  let drop;
+  try{
+    drop = await Drop.findById(dropId);
+  }catch(err){
+    return next(new HttpError("Something went wrong while fetching the drop, please try again", 500));
+  }
+  if (!drop) {
+    return next(new HttpError('Could not find drop for provided id', 404));
+  }
   const ids = drop.comments;
   const comments = await Comment.find().where('_id').in(ids).exec();
   res.json({comments: comments.map(c => {return prepareComment(c)})})

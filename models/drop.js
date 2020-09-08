@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const dropSchema = new mongoose.Schema({
-  title: { type: String, required: true },
+  title: { type: String },
   creatorId: { type: mongoose.Types.ObjectId, required: true, ref: 'User'},
   meme: { type: String, required: true },
   source: { type: String },

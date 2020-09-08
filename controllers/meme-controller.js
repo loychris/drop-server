@@ -17,7 +17,6 @@ const getMemeByDropId = async (req, res, next) => {
     return next(new HttpError('No meme found for given Id', 404));
   }
   const filePath = path.join(__dirname.split('/').slice(0, -1).join('/'), 'DB', drop.meme);
-  console.log(filePath);
   res.sendFile(filePath);
 }
 
