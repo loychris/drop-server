@@ -212,7 +212,7 @@ const voteSubComment = async (req, res, next) => {
 const getDropFromDB = async (dropId, next) => {     
     let drop;
     try{
-        drop = await Drop.findById(dropId);
+        drop = await Drop.findById(dropId).populate(comments);
       }catch(err){
         return next(new HttpError("Something went wrong while fetching the drop, please try again", 500));
       }

@@ -13,14 +13,14 @@ const prepareComment = (c) => {
     _id
   } = c;
   
-  const subs = subComments.map(s => {
-    return {
-      path: s.path,
-      score: s.upVoters.length-s.downVoters.length,
-      actualComment: s.actualComment,
-      posted: s.posted
-    }
-  })
+  // const subs = subComments.map(s => {
+  //   return {
+  //     path: s.path,
+  //     score: s.upVoters.length-s.downVoters.length,
+  //     actualComment: s.actualComment,
+  //     posted: s.posted
+  //   }
+  // })
 
   return {
     _id,
@@ -28,7 +28,7 @@ const prepareComment = (c) => {
     authorId: author,
     posted,
     score: upVoters.length-downVoters.length,
-    subComments: subs
+    subComments: subComments.map(prepareComment)
   }
 };
 
@@ -41,7 +41,7 @@ const prepareDrop = (drop) => {
     creatorId: drop.creatorId,
     memeUrl: drop.url,
     source: drop.source,
-    pinned: drop.pinners.length,
+    //pinned: drop.pinners.length,
     comments: drop.comments,
   }
 }

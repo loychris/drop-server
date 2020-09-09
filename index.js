@@ -33,6 +33,13 @@ app.use((req, res, next) => {
   res.setHeader('Access-Controll-Allow-Methods', 'GET, POST, PATCH, DELETE')
   next();
 });
+
+// Delay simulator
+// app.use((req, res, next) => {
+//   setTimeout(() => next(), 1000)
+// })
+
+
 app.use("/api/extension", extensionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api", commentRoutes);

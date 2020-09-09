@@ -27,7 +27,7 @@ const getDropById = async (req, res, next) => {
   const dropId = req.params.dropId;
   let drop;
   try {
-    drop = await Drop.findById(dropId);
+    drop = await Drop.findById(dropId).populate('comments').exec();
   } catch (err) {
     console.log(err);
     return next(new HttpError("Something went wrong, could not find drop", 500));
@@ -35,7 +35,8 @@ const getDropById = async (req, res, next) => {
   if (!drop) {
     return next(new HttpError("Could not find drop for the provided id", 404));
   }
-  const preparedDrop = prepareDrop(drop)
+  const preparedComments = drop.comments.map(prepareComment);
+  const preparedDrop = prepareDrop({...drop, comments: preparedComments})
   res.json({ drop: preparedDrop});
 };
 
