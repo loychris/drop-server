@@ -13,6 +13,7 @@ const commentSchema = new Schema({
     deleted: { type: Boolean },
     upVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     downVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+    nextSubId: { type: String, maxlength: 10, required: true },
     subComments: [{
         actualComment: { type: String },
         author: { type: mongoose.Types.ObjectId, ref: 'User'},
@@ -20,7 +21,8 @@ const commentSchema = new Schema({
         posted: { type: Date, required: true },
         lastModified: { type: Date },
         upVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
-        downVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}]
+        downVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+        nextSubId: { type: String, maxlength: 10, required: true }
     }]
 });
 

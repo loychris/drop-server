@@ -53,7 +53,11 @@ app.delete('/purgeDB', (req, res, next) => {
     User.deleteMany({}).exec()
     .then(() => {
       console.log('All users removed');
-      res.json({message: "All drops & Users removed"});
+      Comment.deleteMany({}).exec()
+      .then(() => {
+        console.log('All comments removed');
+        res.json({message: "All drops & Users & Comments removed"});
+      })
     })
     .then(() => {
       const directory = path.join(__dirname, 'DB');

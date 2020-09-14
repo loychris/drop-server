@@ -12,6 +12,7 @@ const createComment = async (req, res, next) => {
     const dropId = req.params.dropId; 
     const author = await getUserFromDB(authorId, next);
     const drop = await getDropFromDB(dropId, next);
+    
     const createdComment = new Comment({
         comment,
         drop,
@@ -19,7 +20,8 @@ const createComment = async (req, res, next) => {
         posted: new Date(),
         upVoters: [],
         downVoters: [],
-        subComments: []
+        subComments: [],
+        nextSubId: 0
     });
     try {
         await createdComment.save(),
@@ -119,34 +121,33 @@ const voteComment = async (req, res, next) => {
 const createSubComment = async (req, res, next) => {
   const { authorId, actualComment, parentPath } = req.body;
   const commentId = req.params.commentId;
-  const parentPathArr = parentPath.split('/');
   const author = await getUserFromDB(authorId, next);
   const comment = await getCommnetFromDB(commentId, next);
-  if(!(parentPath === "0" || comment.subComments.some(x => x.path === parentPath))){
-    return next(new HttpError("Invalid parent path. There is np subComment with that path!"))
+  let nextSubId;
+  if(parentPath === '0') {
+    nextSubId = comment.nextSubId
+    const nextSubCommentId = `${Number(nextSubId) + 1}`;  
+    comment.nextSubId = nextSubCommentId;
+  }else{
+    const parent = comment.subComments.find(s => s.path === parentPath)
+    if(!parent){
+      return next(new HttpError("Invalid parent path. There is np subComment with that path!"))
+    }
+    nextSubId = parent.nextSubId;
+    const nextSubCommentId = `${Number(nextSubId) + 1}`;  
+    parent.nextSubId = nextSubCommentId;
   }
-  const sameDepth = comment.subComments.filter(x => x.path.split('/').length === parentPathArr.length + 1);
-  const siblings = sameDepth.filter(s => s.path.startsWith(parentPath));
-  const siblingNumbers = siblings.map(s => Number(s.path.split('/').slice(-1)[0])); 
-  
-  const ending = siblingNumbers.length > 0 ? Math.max(...siblingNumbers)+1 : 0;
-
-  const path = `${parentPath}/${ending}`; 
-  console.log(`
-    siblingsNumbers: ${siblingNumbers}
-    ending:       ${ending}
-    path:         ${path}
-  `)
+  const path = `${parentPath}/${nextSubId}`; 
   const subComment = {
     actualComment,
     author,
     path,
     posted: new Date(),
     upVoters: [],
-    downVoters: []
+    downVoters: [],
+    nextSubId: 0
   }
   try{
-    
     comment.subComments.push(subComment);
     comment.save();
   }catch(err){
@@ -212,7 +213,7 @@ const voteSubComment = async (req, res, next) => {
 const getDropFromDB = async (dropId, next) => {     
     let drop;
     try{
-        drop = await Drop.findById(dropId).populate(comments);
+        drop = await Drop.findById(dropId)
       }catch(err){
         return next(new HttpError("Something went wrong while fetching the drop, please try again", 500));
       }
