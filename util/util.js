@@ -12,16 +12,44 @@ const prepareComment = (c) => {
     subComments,
     _id
   } = c;
-  
+
   return {
     id: _id,
     comment,
     authorId: author,
     posted,
     score: upVoters.length-downVoters.length,
-    subComments: subComments ? subComments.map(s => prepareSubComment(s)) : []
+    subComments: subComments ? subCommentArrToTree(subComments): []
   }
 };
+
+const subCommentArrToTree = subComments => {
+  let commentArr = subComments
+  .map(prepareSubComment)
+  .map(s => { return {...s, path: s.path.split('/')} })
+  let maxPathLength = commentArr.reduce((a,s) => {return a > s.path.length ? a : s.path.length}, 0);
+  while(maxPathLength > 2){
+    commentArr.forEach(s => {
+      if(s.path.length === maxPathLength){
+        const id = s.id;
+        const commentArrayNew = commentArr.map(t => {
+          if(t.path.join('/') === s.path.slice(0,-1).join('/')){
+            return {
+              ...t,
+              subComments: [...t.subComments, {...s, path: s.path.join('/')}]
+            }
+          }else { return t }
+        })
+        commentArr = commentArrayNew.filter(s => s.id !== id);
+      }
+    });
+    commentArr.filter(s => s.path.length !== maxPathLength);
+    maxPathLength--;
+  }
+  return commentArr.map(s => {return { ...s, path: s.path.join('/')}});
+} 
+
+
 
 const prepareSubComment = (subComment) => {
   const {
