@@ -18,7 +18,7 @@ const prepareComment = (c) => {
     comment,
     authorId: author,
     posted,
-    score: upVoters.length-downVoters.length,
+    points: upVoters.length-downVoters.length,
     subComments: subComments ? subCommentArrToTree(subComments): []
   }
 };
