@@ -1,7 +1,7 @@
 const { validationResult } = require("express-validator");
 const mongoose = require('mongoose');
 
-const { prepareDrop, prepareComment } = require("../util/util");
+const { prepareDrop, prepareComment, prepareSubComment } = require("../util/util");
 const Drop = require("../models/drop");
 const User = require("../models/user");
 const Comment = require('../models/comment');
@@ -124,7 +124,7 @@ const createSubComment = async (req, res, next) => {
   const author = await getUserFromDB(authorId, next);
   const comment = await getCommnetFromDB(commentId, next);
   let nextSubId;
-  if(parentPath === '0') {
+  if(parentPath === commentId) {
     nextSubId = comment.nextSubId
     const nextSubCommentId = `${Number(nextSubId) + 1}`;  
     comment.nextSubId = nextSubCommentId;
@@ -140,7 +140,7 @@ const createSubComment = async (req, res, next) => {
   const path = `${parentPath}/${nextSubId}`; 
   const subComment = {
     actualComment,
-    author,
+    authorId,
     path,
     posted: new Date(),
     upVoters: [],
@@ -151,9 +151,10 @@ const createSubComment = async (req, res, next) => {
     comment.subComments.push(subComment);
     comment.save();
   }catch(err){
-    console.log("gosrgjoisnoesn", err);
+    return next(new HttpError("Something went wrong. Please try again later.", 500))
   }
-  res.status(201).json(comment.subComments.map(c => c.path));
+  const subcomment = prepareSubComment(subComment);
+  res.status(201).json(subcomment);
 }
 
 

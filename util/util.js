@@ -23,6 +23,7 @@ const prepareComment = (c) => {
   }
 };
 
+
 const subCommentArrToTree = subComments => {
   let commentArr = subComments
   .map(prepareSubComment)
@@ -95,5 +96,5 @@ const checkValidation = (req, next) => {
 exports.prepareDrop = prepareDrop;
 exports.checkValidation = checkValidation;
 exports.prepareComment = prepareComment;
-
+exports.prepareSubComment = prepareSubComment;
 
