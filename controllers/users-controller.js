@@ -13,26 +13,18 @@ const signup = async (req, res, next) => {
   let user;
   try{
     user = await User.findOne({handle: handle})
-  }catch(err){
-    return next(new HttpError('Register User failed, please try again later.', 500));
-  }
-  if(user){
-    return next(new HttpError(`Handle already taken. Please try another.`, 422));
-  }  
+  }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
+  if(user){    return next(new HttpError(`Handle already taken. Please try another.`, 422))}  
+
   try{
     user = await User.findOne({email: email})
-  }catch(err){
-    return next(new HttpError('Register User failed, please try again later.', 500));
-  }
-  if(user){
-    return next(new HttpError(`There already exists an account with your email. Please log in or choose another email.`, 422))
-  }
+  }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
+  if(user){    return next(new HttpError(`There already exists an account with your email. Please log in or choose another email.`, 422))}
+
   let hashedPassword;
   try{
     hashedPassword = await bcrypt.hash(password, 12); 
-  }catch(err){
-    return next(new HttpError('Could not create User, please try again', 500));
-  }
+  }catch(err){ return next(new HttpError('Could not create User, please try again', 500))}
 
   let createdUser =  new User({
     name,
@@ -48,9 +40,7 @@ const signup = async (req, res, next) => {
   });
   try{
       await createdUser.save()
-  } catch(err) {
-      return next(new HttpError('Register User failed, please try again later.', 500))
-  }
+  }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
 
   let token;
   try{
@@ -59,9 +49,7 @@ const signup = async (req, res, next) => {
       'supersecret_private_key_dont_share',
       { expiresIn: '1h' }
     );
-  }catch(err){
-    return next(new HttpError('Register User failed, please try again later.', 500))
-  }
+  }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
 
 
   res.status(201).json({ userId: createdUser.id, email: createdUser.email, token: token });
@@ -74,27 +62,19 @@ const login = async (req, res, next) => {
   if(Isemail.validate(identification)){
     try {
       existingUser = await User.findOne({ email: identification })
-    } catch (err) {
-      return next(new HttpError('Logging in failed, please try again later.', 500));
-    }
-  } else {
+    }catch(err){ return next(new HttpError('Logging in failed, please try again later.', 500))}
+  }else{
     let handle = identification
     if(!identification.startsWith('@')) handle = `@${identification}`;
     try {
       existingUser = await User.findOne({ handle: handle })
-    } catch (err) {
-      return next(new HttpError('Logging in failed, please try again later.', 500));
-    }
+    }catch(err){ return next(new HttpError('Logging in failed, please try again later.', 500))}
   }
   let isValidPassword = false;
   try {
     isValidPassword = await bcrypt.compare(password, existingUser.password);
-  }catch(err){
-    return next(new HttpError('Could not log you in please check your credentials and try again', 500)); 
-  }
-  if(!isValidPassword){
-    return next(new HttpError('Invalid Credentials, could not log you in.', 401));
-  }
+  }catch(err){ return next(new HttpError('Could not log you in please check your credentials and try again', 500))}
+  if(!isValidPassword){ return next(new HttpError('Invalid Credentials, could not log you in.', 401))}
 
   let token;
   try{
@@ -103,9 +83,7 @@ const login = async (req, res, next) => {
       'supersecret_private_key_dont_share',
       { expiresIn: '1h' }
     );
-  }catch(err){
-    return next(new HttpError('Register User failed, please try again later.', 500))
-  }
+  }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
 
   res.json({
     userId: existingUser.id,
@@ -119,9 +97,7 @@ const checkHandle = async (req, res, next) => {
   let user;
   try {
     user = await User.findOne({ handle: handle })
-  } catch (err) {
-    return next(new HttpError('Checking handle failed, please try again later.', 500));
-  }
+  } catch (err) {return next(new HttpError('Checking handle failed, please try again later.', 500))}
   if(user){
     res.status(422).json({alreadyExists: true}); 
   }else{
