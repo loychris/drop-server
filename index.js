@@ -101,5 +101,5 @@ mongoose
     app.listen(port);
   })
   .catch((err) => {
-    console.log(err);
+    console.log('Could not connect to db');
   });

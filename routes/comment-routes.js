@@ -1,7 +1,7 @@
 const express = require("express");
 const { check } = require("express-validator");
 
-const checkAuth = require('../middleware/check-auth');
+const auth = require('../middleware/check-auth');
 
 const commentController = require("../controllers/comment-controller");
 
@@ -12,9 +12,9 @@ router.get("/comment/:commentId", commentController.getComment);
 router.patch("/comment/:commentId", commentController.updateComment);
 // router.delete("/comment/:commentId", commentController.deleteComment);
 router.post("/drop/:dropId/comment", commentController.createComment);
-router.post("/comment/:commentId/vote", commentController.voteComment);
+router.post("/comment/:commentId/vote", auth, commentController.voteComment);
 router.post("/comment/:commentId/sub", commentController.createSubComment);
 router.post("/comment/:commentId/delSub", commentController.deleteSubComment);
-router.post("/comment/:commentId/voteSub", commentController.voteSubComment);
+router.post("/comment/:commentId/voteSub", auth, commentController.voteSubComment);
 
 module.exports = router;

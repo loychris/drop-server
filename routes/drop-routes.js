@@ -4,6 +4,7 @@ const { check } = require("express-validator");
 const dropController = require("../controllers/drop-controller");
 const drop = require("../models/drop");
 const fileUpload = require('../middleware/file-upload');
+const auth = require('../middleware/check-auth');
 
 const router = express.Router();
 

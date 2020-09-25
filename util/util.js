@@ -1,19 +1,9 @@
 const { validationResult } = require('express-validator');
 const HttpError = require('../models/http-error');
-const User = require('../models/user');
 
-const prepareComment = (c) => {
-  const {
-    comment,
-    author,
-    posted,
-    upVoters,
-    downVoters,
-    subComments,
-    _id
-  } = c;
-
-  return {
+const prepareComment = (c, userId) => {
+  const { comment, author, posted, upVoters, downVoters, subComments, _id } = c;
+  let preparedComment = {
     id: _id,
     comment,
     authorId: author,
@@ -21,7 +11,29 @@ const prepareComment = (c) => {
     points: upVoters.length-downVoters.length,
     subComments: subComments ? subCommentArrToTree(subComments): []
   }
+  if(userId){
+    if(downVoters.some(id => id === userId)) preparedComment.downVoted = true;
+    if(upVoters.some(id => id === userId)) preparedComment.upVoted = true;
+  }
+  return preparedComment;
 };
+
+const prepareSubComment = (subComment, userId) => {
+  const { upVoters, downVoters, _id, actualComment, author, path, subComments } = subComment;
+  let preparedSubComment = {
+    id: _id,
+    author,
+    path,
+    points: upVoters.length-downVoters.length,
+    comment: actualComment,
+    subComments: subComments ? subComments.map(s => prepareSubComment(s)) : []
+  }
+  if(userId){
+    if(downVoters.some(id => id === userId)) preparedComment.downVoted = true;
+    if(upVoters.some(id => id === userId)) preparedComment.upVoted = true;
+  } 
+  return preparedSubComment;
+}
 
 
 const subCommentArrToTree = subComments => {
@@ -52,27 +64,7 @@ const subCommentArrToTree = subComments => {
 
 
 
-const prepareSubComment = (subComment) => {
-  const {
-    upVoters,
-    downVoters,
-    _id,
-    actualComment,
-    author,
-    path,
-    posted,
-    subComments
-  } = subComment;
 
-  return {
-    id: _id,
-    author,
-    path,
-    points: upVoters.length-downVoters.length,
-    comment: actualComment,
-    subComments: subComments ? subComments.map(s => prepareSubComment(s)) : []
-  }
-}
 
 
 const prepareDrop = (drop) => {
