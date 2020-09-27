@@ -86,30 +86,30 @@ const deleteComment = async (req, res, next) => {
 
 const voteComment = async (req, res, next) => {
   const commentId = req.params.commentId;
-  const { voterId, vote } = req.body;
+  const { vote } = req.body;
+  const voterId = req.userData.userId;
   let comment = await getCommnetFromDB(commentId, next);
   let voter = await getUserFromDB(voterId, next);
   try{
-    const sess = await mongoose.startSession();
-    sess.startTransaction();
     comment.upVoters.pull(voterId);
     comment.downVoters.pull(voterId);
     voter.upVotedComments.pull(commentId);
     voter.downVotedComments.pull(commentId);
     if(vote === "up"){
       comment.upVoters.push({_id: voterId});
-      await comment.save({session: sess});
+      await comment.save();
       voter.upVotedComments.push(comment);
-      await voter.save({session: sess});
+      await voter.save();
     } else if(vote === "down"){
       comment.downVoters.push(voterId);
-      await comment.save({session: sess});
+      await comment.save();
       voter.downVotedComments.push(comment);
-      await voter.save({session: sess});
+      await voter.save();
+    } else if(vote === "neutral"){
+      await voter.save();
     } else {
       return next(new HttpError("Invalid argument for vote", 500));
     }
-    await sess.commitTransaction();
   }catch(err){
     console.log(err);
     return next(new HttpError("Something went wrong. Couldn't vote comment")); 
@@ -177,8 +177,9 @@ const deleteSubComment = async (req, res, next) => {
 
 
 const voteSubComment = async (req, res, next) => {
-  const commentId = req.params.commentId;
-  const { path, voterId, vote } = req.body;
+  const voterId = req.userData.userId;
+  const commentId = req.params.commentId
+  const { path, vote } = req.body;
   const comment = await getCommnetFromDB(commentId, next);
   const voter = await getUserFromDB(voterId, next);
   const subComment = comment.subComments.find(s => s.path === path);
@@ -186,13 +187,8 @@ const voteSubComment = async (req, res, next) => {
     return next(new HttpError('Invalid path. There is no SubComment with that path.'));
   }
   const subComments = comment.subComments.filter(s => s.path !== path);
-
-  const sess = await mongoose.startSession();
-  sess.startTransaction();
-
   subComment.upVoters.pull(voterId);
   subComment.downVoters.pull(voterId);
-
   if(vote === "up"){
     subComment.upVoters.push(voterId);
     voter.upVotedSubComments.push({ comment, path });
@@ -200,13 +196,10 @@ const voteSubComment = async (req, res, next) => {
     subComment.downVoters.push(voterId);
     voter.downVotedSubComments.push({ comment, path });
   }
-
   subComments.push(subComment);
   comment.subComments = subComments;
-  
-  comment.save({session: sess})
-  voter.save({session: sess})
-  await sess.commitTransaction();
+  comment.save()
+  voter.save()
   res.json(subComment);
 }
 

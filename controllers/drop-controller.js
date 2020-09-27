@@ -26,6 +26,9 @@ const getAllDrops = async (req, res, next) => {
 const getDropById = async (req, res, next) => {
   const dropId = req.params.dropId;
   let drop;
+  if(req.userData){
+    
+  }
   try {
     drop = await Drop.findById(dropId).populate('comments').exec();
   } catch (err) {
@@ -35,7 +38,12 @@ const getDropById = async (req, res, next) => {
   if (!drop) {
     return next(new HttpError("Could not find drop for the provided id", 404));
   }
-  const preparedComments = drop.comments.map(prepareComment);
+  let preparedComments;
+  if(req.userData) {
+    preparedComments = drop.comments.map(c => prepareComment(c, req.userData.userId));
+  }else {
+    preparedComments = drop.comments.map(prepareComment);
+  }
   const preparedDrop = prepareDrop({...drop, comments: preparedComments})
   res.json({ drop: preparedDrop});
 };

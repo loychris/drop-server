@@ -9,11 +9,11 @@ const prepareComment = (c, userId) => {
     authorId: author,
     posted,
     points: upVoters.length-downVoters.length,
-    subComments: subComments ? subCommentArrToTree(subComments): []
+    subComments: subComments ? userId ? subCommentArrToTree(subComments, userId) : subCommentArrToTree(subComments) : []
   }
   if(userId){
-    if(downVoters.some(id => id === userId)) preparedComment.downVoted = true;
-    if(upVoters.some(id => id === userId)) preparedComment.upVoted = true;
+    if(downVoters.includes(userId)) preparedComment.downVoted = true;
+    if(upVoters.includes(userId)) preparedComment.upVoted = true;
   }
   return preparedComment;
 };
@@ -26,19 +26,19 @@ const prepareSubComment = (subComment, userId) => {
     path,
     points: upVoters.length-downVoters.length,
     comment: actualComment,
-    subComments: subComments ? subComments.map(s => prepareSubComment(s)) : []
+    subComments: subComments ? subComments.map(s => prepareSubComment(s, userId)) : []
   }
   if(userId){
-    if(downVoters.some(id => id === userId)) preparedComment.downVoted = true;
-    if(upVoters.some(id => id === userId)) preparedComment.upVoted = true;
-  } 
+    if(downVoters.includes(userId)) preparedSubComment.downVoted = true;
+    if(upVoters.includes(userId)) preparedSubComment.upVoted = true;
+  }
   return preparedSubComment;
 }
 
 
-const subCommentArrToTree = subComments => {
+const subCommentArrToTree = (subComments, userId) => {
   let commentArr = subComments
-  .map(prepareSubComment)
+  .map(s => prepareSubComment(s, userId))
   .map(s => { return {...s, path: s.path.split('/')} })
   let maxPathLength = commentArr.reduce((a,s) => {return a > s.path.length ? a : s.path.length}, 0);
   while(maxPathLength > 2){
