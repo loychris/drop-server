@@ -88,31 +88,37 @@ const voteComment = async (req, res, next) => {
   const commentId = req.params.commentId;
   const { vote } = req.body;
   const voterId = req.userData.userId;
+
   let comment = await getCommnetFromDB(commentId, next);
   let voter = await getUserFromDB(voterId, next);
-  try{
-    comment.upVoters.pull(voterId);
-    comment.downVoters.pull(voterId);
-    voter.upVotedComments.pull(commentId);
-    voter.downVotedComments.pull(commentId);
-    if(vote === "up"){
-      comment.upVoters.push({_id: voterId});
-      await comment.save();
-      voter.upVotedComments.push(comment);
-      await voter.save();
-    } else if(vote === "down"){
-      comment.downVoters.push(voterId);
-      await comment.save();
-      voter.downVotedComments.push(comment);
-      await voter.save();
-    } else if(vote === "neutral"){
-      await voter.save();
-    } else {
-      return next(new HttpError("Invalid argument for vote", 500));
-    }
-  }catch(err){
-    console.log(err);
-    return next(new HttpError("Something went wrong. Couldn't vote comment")); 
+
+  if(vote === 'up'){
+    Comment.updateOne(
+      {_id: commentId },
+      { $addToSet: { upVoters : voterId }, $pull: { downVoters: voterId }}
+    ).exec()
+    User.updateOne(
+      {_id: voterId },
+      { $addToSet: { upVotedComments : commentId }, $pull: { downVotedComments: commentId }}
+    ).exec()
+  }else if(vote === 'down'){
+    await Comment.updateOne(
+      {_id: commentId },
+      { $addToSet: { downVoters : voterId }, $pull: { upVoters: voterId }}
+    ).exec()
+    await User.updateOne(
+      {_id: voterId },
+      { $addToSet: { downVotedComments : commentId }, $pull: { upVotedComments: commentId }}
+    ).exec()
+  }else if(vote === 'neutral'){
+    await Comment.updateOne(
+      {_id: commentId },
+      { $pull: { downVoters : voterId }, $pull: { upVoters: voterId }}
+    ).exec()      
+    await User.updateOne(
+      {_id: voterId },
+      { $pull: { downVotedComments : commentId }, $pull: { upVotedComments: commentId }}
+    ).exec()
   }
   const preparedComment = prepareComment(comment);
   res.status(200).json(preparedComment);
