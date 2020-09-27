@@ -88,40 +88,65 @@ const voteComment = async (req, res, next) => {
   const commentId = req.params.commentId;
   const { vote } = req.body;
   const voterId = req.userData.userId;
-
-  let comment = await getCommnetFromDB(commentId, next);
-  let voter = await getUserFromDB(voterId, next);
-
   if(vote === 'up'){
-    Comment.updateOne(
+    await Comment.updateOne(
       {_id: commentId },
       { $addToSet: { upVoters : voterId }, $pull: { downVoters: voterId }}
-    ).exec()
+    ).exec((err, info) => {    
+      if(err){
+        console.log(err);
+        return next(new HttpError("Something went wrong while voting.", 500))
+      }
+    })
     User.updateOne(
       {_id: voterId },
       { $addToSet: { upVotedComments : commentId }, $pull: { downVotedComments: commentId }}
-    ).exec()
+    ).exec((err, info) => {
+      if(err){
+        console.log(err);
+        return next(new HttpError("Something went wrong while voting.", 500))
+      }
+    })
   }else if(vote === 'down'){
     await Comment.updateOne(
       {_id: commentId },
       { $addToSet: { downVoters : voterId }, $pull: { upVoters: voterId }}
-    ).exec()
+    ).exec((err, info) => {
+      if(err){
+        console.log(err);
+        return next(new HttpError("Something went wrong while voting.", 500))
+      }
+    })
     await User.updateOne(
       {_id: voterId },
       { $addToSet: { downVotedComments : commentId }, $pull: { upVotedComments: commentId }}
-    ).exec()
+    ).exec((err, info) => {
+      if(err){
+        console.log(err);
+        return next(new HttpError("Something went wrong while voting.", 500))
+      }
+    })
   }else if(vote === 'neutral'){
     await Comment.updateOne(
       {_id: commentId },
       { $pull: { downVoters : voterId }, $pull: { upVoters: voterId }}
-    ).exec()      
+    ).exec((err, info) => {
+      if(err){
+        console.log(err);
+        return next(new HttpError("Something went wrong while voting.", 500))
+      }
+    })    
     await User.updateOne(
       {_id: voterId },
       { $pull: { downVotedComments : commentId }, $pull: { upVotedComments: commentId }}
-    ).exec()
+    ).exec((err, info) => {
+      if(err){
+        console.log(err);
+        return next(new HttpError("Something went wrong while voting.", 500))
+      }
+    })
+    res.status(200).json("I voted!");
   }
-  const preparedComment = prepareComment(comment);
-  res.status(200).json(preparedComment);
 }
 
 const createSubComment = async (req, res, next) => {
