@@ -11,6 +11,7 @@ const commentSchema = new Schema({
     posted: { type: Date, required: true },
     lastModified: { type: Date },
     deleted: { type: Boolean },
+    reported: { type: Boolean },
     upVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     downVoters: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     nextSubId: { type: String, maxlength: 10, required: true },

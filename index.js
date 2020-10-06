@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require('body-parser')
 const fs = require('fs');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 
 const HttpError = require("./models/http-error");
@@ -13,6 +14,7 @@ const dropRoutes = require("./routes/drop-routes");
 const userRoutes = require("./routes/users-routes");
 const commentRoutes = require('./routes/comment-routes');
 const extensionRoutes = require('./routes/extension-routes');
+const adminRoutes = require('./routes/admin-routes');
 
 const User = require('./models/user');
 const Comment = require('./models/comment');
@@ -35,9 +37,10 @@ app.use((req, res, next) => {
 });
 
 // Delay simulator
-// app.use((req, res, next) => {
-//   setTimeout(() => next(), 1000)
-// })
+  app.use((req, res, next) => {
+    setTimeout(() => next(), 2000)
+  })
+
 
 
 app.use("/api/extension", extensionRoutes);
@@ -45,7 +48,7 @@ app.use("/api/users", userRoutes);
 app.use("/api", commentRoutes);
 app.use("/api/drop", dropRoutes);
 app.use("/api/meme", memeRoutes);
-
+app.use("/api", adminRoutes);
 app.delete('/purgeDB', (req, res, next) => {
   Drop.deleteMany({}).exec()
   .then(() => {
@@ -72,6 +75,8 @@ app.delete('/purgeDB', (req, res, next) => {
     });
   });
 });
+
+  
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);

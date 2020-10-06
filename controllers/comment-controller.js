@@ -60,21 +60,13 @@ const updateComment = async (req, res, next) => {
 }
 
 const deleteComment = async (req, res, next) => {
-  const commentId = req.params.commentId
-  let comment;
-  try {
-    comment = await getCommnetFromDB(commentId, next);
-  }catch(err){
-    return next(new HttpError('There was a problem finding the commen'))
-  }
+  const userId = req.userData.userId;
+  const commentId = req.params.commentId;
+  const comment = await getCommnetFromDB(commentId);
+  if(comment.author !== userId) return next(new HttpError('Only the author of the comment can delete it!', 401))
+  comment.deleted = true;
   try{
-    const sess = await mongoose.startSession();
-    sess.startTransaction();
-    author.writtenComments.pull(commentId);
-    author.save({session: sess});
-    drop.comments.pull(commentId);
-    drop.save({session: sess});
-    await sess.commitTransaction();
+    await comment.save()
   }catch(err){
     return next(new HttpError("Could not delete Comment. Try again later", 500));
   }
@@ -179,6 +171,7 @@ const createSubComment = async (req, res, next) => {
     nextSubId: 0
   }
   try{
+    author.writtenSubComments.push({comment: commentId, path})
     comment.subComments.push(subComment);
     comment.save();
   }catch(err){
@@ -234,6 +227,22 @@ const voteSubComment = async (req, res, next) => {
   res.json(subComment);
 }
 
+const reportComment = async (req, res, next) => {
+  const reporterId = req.userData.userId;
+  const { commentId, path } = req.body;
+  let reporter = await getUserFromDB(reporterId);
+  let comment = await getCommentFromDB(commentId);
+  comment.reported = true;
+  try{
+    await comment.save()
+  }catch(err){
+    console.log(err)
+    return next(new HttpError('Something went wrong while reporting the comment. Please try again later', 500))
+  }
+  res.status(200).json({message: "comment reported!"});
+}
+
+
 
 const getDropFromDB = async (dropId, next) => {     
     let drop;
@@ -288,7 +297,7 @@ const getAllComments = async (req, res, next) => {
 exports.getAllComments = getAllComments;
 exports.createComment = createComment;
 exports.getComment = getComment;
-// exports.deleteComment = deleteComment;
+exports.deleteComment = deleteComment;
 exports.updateComment = updateComment;
 exports.voteComment = voteComment;
 exports.createSubComment = createSubComment;
