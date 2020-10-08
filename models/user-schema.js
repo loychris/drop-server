@@ -30,7 +30,8 @@ const userSchema = new Schema({
     downVotedSubComments: [{   
             comment: { type: mongoose.Types.ObjectId, required: true, ref: 'Comment'},
             path: {type: String, required: true}
-    }]
+    }],
+    chats: [{type: mongoose.Types.ObjectId, ref: 'Chat'}]
 });
 
 userSchema.plugin(uniqueValidator);

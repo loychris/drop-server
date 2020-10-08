@@ -2,9 +2,9 @@ const { validationResult } = require("express-validator");
 const mongoose = require('mongoose');
 
 const { prepareDrop, prepareComment, prepareSubComment } = require("../util/util");
-const Drop = require("../models/drop");
-const User = require("../models/user");
-const Comment = require('../models/comment');
+const Drop = require("../models/drop-schema");
+const User = require("../models/user-schema");
+const Comment = require('../models/comment-schema');
 const HttpError = require("../models/http-error");
 
 const createComment = async (req, res, next) => {

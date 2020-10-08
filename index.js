@@ -8,17 +8,17 @@ const nodemailer = require('nodemailer');
 
 
 const HttpError = require("./models/http-error");
-// const chatRoutes = require("./routes/chat-routes");
 const memeRoutes = require("./routes/meme-route");
 const dropRoutes = require("./routes/drop-routes");
 const userRoutes = require("./routes/users-routes");
 const commentRoutes = require('./routes/comment-routes');
 const extensionRoutes = require('./routes/extension-routes');
 const adminRoutes = require('./routes/admin-routes');
+const chatRoutes = require('./routes/chat-routes');
 
-const User = require('./models/user');
-const Comment = require('./models/comment');
-const Drop = require('./models/drop');
+const User = require('./models/user-schema');
+const Comment = require('./models/comment-schema');
+const Drop = require('./models/drop-schema');
 
 
 const app = express();
@@ -37,12 +37,11 @@ app.use((req, res, next) => {
 });
 
 // Delay simulator
-  app.use((req, res, next) => {
-    setTimeout(() => next(), 2000)
-  })
+  // app.use((req, res, next) => {
+  //   setTimeout(() => next(), 2000)
+  // })
 
-
-
+app.use('/api/chat', chatRoutes);
 app.use("/api/extension", extensionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api", commentRoutes);

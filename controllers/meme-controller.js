@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 
-const Drop = require('../models/drop');
+const Drop = require('../models/drop-schema');
 const HttpError = require("../models/http-error");
 
 

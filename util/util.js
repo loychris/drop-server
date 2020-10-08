@@ -62,7 +62,44 @@ const subCommentArrToTree = (subComments, userId) => {
   return commentArr.map(s => {return { ...s, path: s.path.join('/')}});
 } 
 
+const getDropFromDB = async (dropId, next) => {     
+  let drop;
+  try{
+      drop = await Drop.findById(dropId)
+    }catch(err){
+      return next(new HttpError("Something went wrong while fetching the drop, please try again", 500));
+    }
+    if (!drop) {
+      return next(new HttpError('Could not find drop for provided id', 404));
+    }
+    return drop;
+}
 
+const getCommnetFromDB = async (commentId, next) => {
+  let comment;
+  try{
+    comment = await Comment.findById(commentId);
+  }catch(err){
+    return next(new HttpError("Something went wrong while fetching the comment, please try again", 500));
+  }
+  if (!comment) {
+    return next(new HttpError('Could not find comment for provided id', 404));
+  }
+  return comment;
+}
+
+const getUserFromDB = async (userId, next) => {
+  let user;
+  try{
+      user = await User.findById(userId);
+  }catch(err){
+      return next(new HttpError("Something went wrong while fetching the user, please try again", 500));
+    }
+    if (!user) {
+      return next(new HttpError('Could not find user for provided id', 404));
+    }
+    return user;
+}
 
 
 
@@ -89,4 +126,6 @@ exports.prepareDrop = prepareDrop;
 exports.checkValidation = checkValidation;
 exports.prepareComment = prepareComment;
 exports.prepareSubComment = prepareSubComment;
-
+exports.getDropFromDB = getDropFromDB;
+exports.getCommnetFromDB = getCommnetFromDB;
+exports.getUserFromDB = getUserFromDB;

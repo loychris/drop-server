@@ -4,9 +4,9 @@ const path = require('path');
 const fs = require('fs');
 
 const { prepareDrop, prepareComment } = require("../util/util");
-const Drop = require("../models/drop");
-const User = require("../models/user");
-const Comment = require('../models/comment');
+const Drop = require("../models/drop-schema");
+const User = require("../models/user-schema");
+const Comment = require('../models/comment-schema');
 const HttpError = require("../models/http-error");
 
 //-----------------------------------------------------------------------------------

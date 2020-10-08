@@ -2,7 +2,7 @@ const express = require("express");
 const { check } = require("express-validator");
 
 const dropController = require("../controllers/drop-controller");
-const drop = require("../models/drop");
+const drop = require("../models/drop-schema");
 const fileUpload = require('../middleware/file-upload');
 const auth = require('../middleware/check-auth');
 const optionalAuth = require('../middleware/check-optional-auth');
