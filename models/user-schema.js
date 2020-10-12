@@ -31,7 +31,10 @@ const userSchema = new Schema({
             comment: { type: mongoose.Types.ObjectId, required: true, ref: 'Comment'},
             path: {type: String, required: true}
     }],
-    chats: [{type: mongoose.Types.ObjectId, ref: 'Chat'}]
+    chats: [{type: mongoose.Types.ObjectId, ref: 'Chat'}],
+    friends: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+    friendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+    sentFriendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
 });
 
 userSchema.plugin(uniqueValidator);

@@ -1,5 +1,6 @@
 const express = require('express');
 const { check } = require('express-validator');
+const auth = require("../middleware/check-auth");
 
 const usersController = require('../controllers/users-controller');
 
@@ -15,12 +16,12 @@ router.post('/signup',
 
 router.post('/login', usersController.login);
 
-router.post('/checkHandle', 
-    check('handle').isLength({min: 4, max: 20}),
-    usersController.checkHandle);
+router.post('/addFriend', auth, usersController.addFriend);
 
-router.post('/checkEmail', 
-    check('email').normalizeEmail().isEmail(), 
-    usersController.checkEmail);
+router.post('/checkHandle', check('handle').isLength({min: 4, max: 20}), usersController.checkHandle);
+
+router.post('/checkEmail', check('email').normalizeEmail().isEmail(), usersController.checkEmail);
+
+router.get('/', usersController.getAllUsers);
 
 module.exports = router;

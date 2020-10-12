@@ -36,7 +36,11 @@ const signup = async (req, res, next) => {
     swipedLeftDrops: [],
     swipedRightDrops: [],
     savedDrops: [],
-    writtenComments: []
+    writtenComments: [],
+    friends: [],
+    friendRequests: [],
+    sentFriendRequests: [],
+
   });
   try{
       await createdUser.save()
@@ -127,9 +131,42 @@ const checkEmail = async (req, res, next) => {
   }
 }
 
+const getAllUsers = async (req, res, next) => {
+  let users;
+  try{
+    users = await User.find({}).select('name handle');
+  }catch(err){
+    return next(new HttpError("Something went wrong. Please try again", 500));
+  }
+  res.json(users)
+}
 
+const addFriend = async (req, res, next) => {
+  const userId = req.userData.userId;
+  const friendId = req.body.friendId; 
+  let friend;
+  let user;
+  try { 
+    user = await User.findById(userId) }
+  catch(err){ return next(new HttpError("Something went wrong. Try again later", 500)) }   
+  try {
+    friend = await User.findById(friendId)
+  }catch(err){ return next(new HttpError("Something went wrong. Try again later", 500)) }
+  if(!friend){ return next(new HttpError("No user found with FriendId", 404)) }
+  if(!friend.friendRequests.contains(userId)){ 
+    friend.friendRequests.push(userId);
+  }
+  if(!user.sentFriendRequests.contains(friendId)){ 
+    user.sentFriendRequests.push(friendId);
+  }
+  await friend.save();
+  await user  .save();
+  res.json({message: "Friend Request Sent!"})
+}
 
 exports.checkHandle = checkHandle;
 exports.checkEmail = checkEmail;
 exports.signup = signup;
 exports.login = login;
+exports.getAllUsers = getAllUsers;
+exports.addFriend = addFriend;
