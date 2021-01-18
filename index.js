@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const bodyParser = require('body-parser')
 const fs = require('fs');
 const path = require('path');
-const nodemailer = require('nodemailer');
 
 
 const HttpError = require("./models/http-error");
@@ -37,11 +36,11 @@ app.use((req, res, next) => {
 });
 
 // // // Delay simulator
-  // app.use((req, res, next) => {
-  //   setTimeout(() => next(), 2000)
-  // })
+app.use((req, res, next) => {
+  setTimeout(() => next(), 2000)
+})
 
-app.use('/api/chat', chatRoutes);
+app.use('/', chatRoutes);
 app.use("/api/extension", extensionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api", commentRoutes);

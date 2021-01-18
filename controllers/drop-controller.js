@@ -8,6 +8,7 @@ const Drop = require("../models/drop-schema");
 const User = require("../models/user-schema");
 const Comment = require('../models/comment-schema');
 const HttpError = require("../models/http-error");
+const { Storage } = require('@google-cloud/storage');
 
 //-----------------------------------------------------------------------------------
 
@@ -26,9 +27,7 @@ const getAllDrops = async (req, res, next) => {
 const getDropById = async (req, res, next) => {
   const dropId = req.params.dropId;
   let drop;
-  if(req.userData){
-    
-  }
+
   try {
     drop = await Drop.findById(dropId).populate('comments').exec();
   } catch (err) {
@@ -38,15 +37,45 @@ const getDropById = async (req, res, next) => {
   if (!drop) {
     return next(new HttpError("Could not find drop for the provided id", 404));
   }
-  let preparedComments;
-  if(req.userData) {
-    preparedComments = drop.comments.map(c => prepareComment(c, req.userData.userId));
-  }else {
-    preparedComments = drop.comments.map(prepareComment);
-  }
-  const preparedDrop = prepareDrop({...drop, comments: preparedComments})
-  res.json({ drop: preparedDrop});
+  const preparedDrop = req.userData ? prepareDrop(drop, userData.userId) : prepareDrop(drop);
+  res.json(preparedDrop);
 };
+
+//-----------------------------------------------------------------------------------
+
+const getAllDropIds = async (req, res, next) => {
+  let drops;
+  try{
+    drops = await Drop.find({});
+  }catch(err){
+    return next(new HttpError('Sonething went wrong. could not get all ids', 500));
+  }
+  const ids = drops.map(d => d._id);
+  res.json(ids);
+}
+
+
+//-----------------------------------------------------------------------------------
+
+
+
+const getDropsByIds = async (req, res, next) => {
+  const { ids } = req.body;
+  let drops;
+  try{
+    drops = await Drop.find({'_id': {$in: ids}}).populate('comments').exec();
+  }catch(err){
+    return next(new HttpError('One or more ids are not valid', 400));
+  }
+  if(!drops){
+    return next(new HttpError('no drop found', 404));
+  }
+  const preparedDrops = drops.map(d => {
+    return req.userData ? prepareDrop(d, userData.userId) : prepareDrop(d);
+  });
+  res.json(preparedDrops);
+}
+
 
 //-----------------------------------------------------------------------------------
 
@@ -68,18 +97,12 @@ const getCommentsForDrop = async (req, res, next) => {
 
 //-----------------------------------------------------------------------------------
 
+
 const createDrop = async (req, res, next) => {
   const { title, creatorId, source } = req.body;
   if(!req.file){
     return next(new HttpError('No file received', 400));
   }
-
-  // handle file saving
-  const file = req.file; 
-  const filePath = path.join(__dirname.split('/').slice(0, -1).join('/'), 'DB', file.originalname);
-  fs.writeFileSync(filePath, file);
-
-  // update user
   let user;
   try{
     user = await User.findById(creatorId)//.session(sess);
@@ -89,12 +112,17 @@ const createDrop = async (req, res, next) => {
   if (!user) {
     return next(new HttpError('Could not find user for provided id', 404));
   }
-  console.log(file.originalname);
-
+  console.log(req.file.originalname);
+  const storage = new Storage({
+    keyFilename: path.join(__dirname, '../drop-260521-cc0eb8f443d7.json'),
+    projectId: 'drop-260521'
+  });
+  const memesBucket = storage.bucket('drop-meme-bucket')
+  
   const createdDrop = new Drop({
     title,
     creatorId,
-    meme: filePath,
+    meme: "f",
     source,
     posted: new Date(),
     leftSwipers: [],
@@ -102,7 +130,29 @@ const createDrop = async (req, res, next) => {
     pinners: [],
     comments: []
   });
-  console.log(createdDrop); 
+  
+  //////// Post Pic to GCP Bucket /////////////////////////////////////////////////////////////
+  const gcsname = `meme-${createdDrop._id}`;
+  const file = memesBucket.file(gcsname);
+  const stream = file.createWriteStream({
+    metadata: {
+      contentType: req.file.mimetype
+    },
+    resumable: false
+  });
+  stream.on('error', (err) => {
+    req.file.cloudStorageError = err;
+    next(err);
+  });
+  stream.on('finish', () => {
+    console.log('/////////////');
+    console.log(`uploaded ${gcsname} to drop-meme-bucket`);
+    console.log('/////////////');
+    req.file.cloudStorageObject = gcsname;
+  });
+  stream.end(req.file.buffer);
+  //////////////////////////////////////////////////////////////////////
+  
   try {
     await createdDrop.save();
   }catch(err){
@@ -159,7 +209,7 @@ const deleteDrop = async (req, res, next) => {
     return next(new HttpError("Could not find drop for the provided id", 404));
   }
   try {
-    await drop.remove();
+    await Drop.findOneAndDelete(dropId);
   } catch (err) {
     return next(new HttpError("Something went wrong, could not delete drop", 500));
   }
@@ -245,16 +295,25 @@ const getDrop = async (id, next) => {
   return drop;
 }
 
-const getAllDropIds = async (req, res, next) => {
-  let drops;
-  try{
-    drops = await Drop.find({});
-  }catch(err){
-    return next(new HttpError('Sonething went wrong. could not get all ids', 500));
-  }
-  const ids = drops.map(d => d._id);
-  res.json(ids);
-}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// const bucketName = "drop-meme-bucket";
+// const filename = "/home/chris/drop/stream-server/DB/a0R3Vnd_460s.jpg";
+// async function uploadFile() {
+//   await storage.bucket(bucketName).upload(filename, {
+//     gzip: true,
+//     metadata: {
+//       cacheControl: 'public, max-age=31536000',
+//     },
+//   });
+
+//   console.log(`${filename} uploaded to ${bucketName}.`);
+// }
+
+// uploadFile().then(console.log).catch(console.error);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 exports.getAllDropIds = getAllDropIds;
 exports.getAllDrops = getAllDrops; 
@@ -265,3 +324,4 @@ exports.getDropById = getDropById;
 exports.updateDrop = updateDrop;
 exports.deleteDrop = deleteDrop;
 exports.swipeDrop = swipeDrop;
+exports.getDropsByIds = getDropsByIds;

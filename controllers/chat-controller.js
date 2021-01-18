@@ -1,96 +1,104 @@
 const Chat = require('../models/chat-schema'); 
 const User = require('../models/user-schema');
 const HttpError = require("../models/http-error");
+const { prepareChat, prepareMessage, prepareUserData } = require('../util/util');
 
-const postChat = async (req, res, next) => {
-    const { group, members, name } = req.body;
-    let initiator;
+const newChat = async (req, res, next) => {
+    const { group, members, name, message } = req.body;
+    const senderId = req.userData.userId;
+    let sender;
     try {
-        initiator = await User.findById(req.userData.userId);
-    }catch(err){
-        return next(new HttpError('Something went wrong, please try again later', 500)); 
-    }
-    if(!initiator){
-        return next(new HttpError('User not found', 404)); 
-    }
-    if(group){  // new group chat
+        sender = await User.findById(senderId);
+    }catch(err){ return next(new HttpError('Something went wrong, please try again later', 500))}
+    if(!sender){return next(new HttpError('User not found', 404))}
+    if(group){  
+        // new group chat
         //
         //
         //
-    } else { // new 1on1 Chat
+    } else { 
+        // new 1on1 Chat
+        const receiverId = members[0];
         let receiver;
         try {
-            receiver = await User.findById(req.userData.userId);
-        }catch(err){
-            return next(new HttpError('Something went wrong, please try again later', 500)); 
+            receiver = await User.findById(members[0]);
+        }catch(err){ return next(new HttpError('Something went wrong, please try again later', 500))}
+        if(!receiver){ return next(new HttpError('User not found', 404))}
+        if(receiver.chats.some(c => sender.chats.includes(c))){ return next(new HttpError('Chat already exists', 409))}
+        if(!message || !message.text){ return next(new HttpError('no message attached', 400))}
+        const firstMessage = {
+            text: message.text,
+            id: 0,
+            sender: senderId,
+            received: [],
+            time: new Date()
         }
-        if(!receiver){
-            return next(new HttpError('User not found', 404)); 
-        }
-        if(receiver.chats.some(c => initiator.chats.includes(c))){
-            return next(new HttpError('Chat already exists', 409))
-        } else {
-            const createdChat = new Chat({
-                group: false,
-                members: [initiator._id, receiver.id],
-                admins: [initiator._id, receiver.id],
-                messages: []
-            })
-            receiver.chats.push(createdChat._id)
-            initiator.chats.push(createdChat._id)
-            await receiver.save()
-            await initiator.save()
-            await createdChat.save()
-            res.status(201).json(createdChat)
-        }
+        const createdChat = new Chat({
+            group: false,
+            members: [senderId, receiverId],
+            admins: [senderId, receiverId],
+            messages: [firstMessage],
+        })
+        receiver.chats.push(createdChat._id)
+        sender.chats.push(createdChat._id)
+        await receiver.save()
+        await sender.save()
+        await createdChat.save()
+        const preparedChat = {...createdChat, name: receiver.name };
+        res.status(201).json(preparedChat);
     }
 }
 
 const getChat = async (req, res, next) => {
     const chatId = req.params.chatId;
-    const userId = req.userData.userId;
     if(!chatId){
         return next(new HttpError("No chatId given", 400));
     }
     let chat;
     try {
-        chat = await Chat.findById(chatId);
+        chat = await Chat.findById(chatId).populate('members').exec();
     }catch(err){
         return next(new HttpError("Something went wrong, could not find Chat"));
     }
     if(!chat){
         return next(new HttpError("Chat not found", 404))
     }
-    if(chat.members.includes(userId)){
-        return next(new HttpError("Chat not found", 404))
+    if(!chat.members.some(member => member._id === req.userData.userId)){
+        return next(new HttpError('Authentification failed!', 401));
     }
-    res.json(chat)
+    const preparedChat = prepareChat(chat);
+    res.json(preparedChat)
 }
 
 const deleteChat = async (req, res, next) => {
-    
 }
 
-const sendMessage = async (req, res, next) => {
-    const userId = req.userData.userId;
+const sendTextMessage = async (req, res, next) => {
+    const { userId } = req.userData;
     const { message } = req.body;
-    const chatId = req.params.userId;
-    let chat;
+    const chatId = req.params.chatId;
+    let chat, receiver;
     try {
         chat = await Chat.findById(chatId);
     }catch(err){
-        return next(new HttpError("Something went wrong, could not find Chat"));
+        return next(new HttpError("Something went wrong, could not find Chat", 500));
     }
     if(!chat){
         return next(new HttpError("Chat not found", 404))
     }
-    if(chat.members.includes(userId)){
-        return next(new HttpError("Chat not found", 404))
+    if(!chat.members.includes(userId)){
+        return next(new HttpError('Unauthorized', 401));
     }
-    const messageId = chat.nextMessageId;
+    const receiverId = chat.members.filter(id => id.toString() !== userId.toString());
+    try {
+        receiver = await User.findById(receiverId);
+    }catch(err){
+        return next(new HttpError('Something went wrog could not find User', 500))
+    }
     const newMessage = {
         text: message,
-        id: chat.nextMessageId,
+        type: 'text',
+        id: Date.now(),
         sender: userId,
         received: [],
         seen: [],
@@ -98,32 +106,63 @@ const sendMessage = async (req, res, next) => {
         time: new Date(),
         deleted: []
     }
-    chat.messages.push(newMessage);
-    chat.nextMessageId = messageId+1;
+    receiver.notifications.push({
+        notificationType: 'NEW_TEXT_MESSAGE',
+        chatId: chatId,
+        message: newMessage
+    })
     try{
-        await chat.save()
+        await receiver.save(); 
     }catch(err){
-        return next(new HttpError("Something went wrong. Please try again later", 500))
+        console.log(err);
+        return next(new HttpError(''))  
     }
-    res.json(chat);
+    // chat.messages.push(newMessage);
+    // try{
+    //     await chat.save()
+    // }catch(err){
+    //     return next(new HttpError("Something went wrong. Please try again later", 500));
+    // }
+    console.log('Receiver Notifications')
+    console.log(receiver.notifications);3
+    const preparedMessage = prepareMessage(newMessage);
+    res.json(preparedMessage);
+}
+
+const getChats = async (req, res, next) => {
+    const userId = req.userData.userId;
+    let user;
+    try {
+        // user = await User.findById(userId).populate('chats').exec();
+        user = await User.findById(userId).populate({ 
+            path: 'chats',
+            populate: {
+              path: 'members',
+              model: 'User'
+            } 
+         }).exec();
+
+    } catch(err){  
+        return next(new HttpError("Something went wrong. Please try again later", 500)) 
+    }
+    const preparedChats = user.chats.map(chat => prepareChat(chat, userId));
+    res.json(preparedChats);
 }
 
 const messageReceived = async (req, res, next) => {
-
 }
 
 const messageSeen = async (req, res, next) => {
-
 }
 
 const deleteMessage = async (req, res, next) => {
-
 }
 
+exports.getChats = getChats;
 exports.getChat = getChat;
-exports.postChat = postChat;
+exports.newChat = newChat;
 exports.deleteChat = deleteChat;
-exports.sendMessage = sendMessage;
+exports.sendTextMessage = sendTextMessage;
 exports.messageReceived = messageReceived;
 exports.messageSeen = messageSeen;
 exports.deleteMessage = deleteMessage;

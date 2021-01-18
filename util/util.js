@@ -1,39 +1,6 @@
 const { validationResult } = require('express-validator');
 const HttpError = require('../models/http-error');
 
-const prepareComment = (c, userId) => {
-  const { comment, author, posted, upVoters, downVoters, subComments, _id } = c;
-  let preparedComment = {
-    id: _id,
-    comment,
-    authorId: author,
-    posted,
-    points: upVoters.length-downVoters.length,
-    subComments: subComments ? userId ? subCommentArrToTree(subComments, userId) : subCommentArrToTree(subComments) : []
-  }
-  if(userId){
-    if(downVoters.includes(userId)) preparedComment.downVoted = true;
-    if(upVoters.includes(userId)) preparedComment.upVoted = true;
-  }
-  return preparedComment;
-};
-
-const prepareSubComment = (subComment, userId) => {
-  const { upVoters, downVoters, _id, actualComment, author, path, subComments } = subComment;
-  let preparedSubComment = {
-    id: _id,
-    author,
-    path,
-    points: upVoters.length-downVoters.length,
-    comment: actualComment,
-    subComments: subComments ? subComments.map(s => prepareSubComment(s, userId)) : []
-  }
-  if(userId){
-    if(downVoters.includes(userId)) preparedSubComment.downVoted = true;
-    if(upVoters.includes(userId)) preparedSubComment.upVoted = true;
-  }
-  return preparedSubComment;
-}
 
 
 const subCommentArrToTree = (subComments, userId) => {
@@ -101,20 +68,6 @@ const getUserFromDB = async (userId, next) => {
     return user;
 }
 
-
-
-
-const prepareDrop = (drop) => {
-  return {
-    title: drop.title,
-    creatorId: drop.creatorId,
-    memeUrl: drop.url,
-    source: drop.source,
-    //pinned: drop.pinners.length,
-    comments: drop.comments,
-  }
-}
-
 const checkValidation = (req, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -122,10 +75,124 @@ const checkValidation = (req, next) => {
   }
 }
 
+//------- PREPARE SHIT BEFORE SENDIG IT TO THE USER ---------------------------------
+
+const prepareSelf = (user, token) => {
+  return {
+    name: user.name,
+    handle: user.handle,
+    chats: user.chats.map(c => prepareChat(c, user.id)),
+    friends: user.friends.map(prepareUserData),
+    notifications: user.notifications.map(prepareNotification),
+    receivedFriendRequests: user.receivedFriendRequests.map(prepareUserData),
+    sentFriendRequests: user.sentFriendRequests.map(prepareUserData),
+    userId: user.id,
+    profilePic: user.profilePic,
+    email: user.email,
+    token: token,
+    expiresIn: 3600*672
+  }
+}
+
+const prepareComment = (c, userId) => {
+  const { comment, author, posted, upVoters, downVoters, subComments, _id } = c;
+  let preparedComment = {
+    id: _id,
+    comment,
+    authorId: author,
+    posted,
+    points: upVoters.length-downVoters.length,
+    subComments: subComments ? userId ? subCommentArrToTree(subComments, userId) : subCommentArrToTree(subComments) : []
+  }
+  if(userId){
+    if(downVoters.includes(userId)) preparedComment.downVoted = true;
+    if(upVoters.includes(userId)) preparedComment.upVoted = true;
+  }
+  return preparedComment;
+};
+
+const prepareSubComment = (subComment, userId) => {
+  const { upVoters, downVoters, _id, actualComment, author, path, subComments } = subComment;
+  let preparedSubComment = {
+    id: _id,
+    author,
+    path,
+    points: upVoters.length-downVoters.length,
+    comment: actualComment,
+    subComments: subComments ? subComments.map(s => prepareSubComment(s, userId)) : []
+  }
+  if(userId){
+    if(downVoters.includes(userId)) preparedSubComment.downVoted = true;
+    if(upVoters.includes(userId)) preparedSubComment.upVoted = true;
+  }
+  return preparedSubComment;
+}
+
+const prepareUserData = (user) => {
+  return {
+    name: user.name, 
+    handle: user.handle, 
+    userId: user._id,
+    profilePic: user.profilePic
+  }
+}
+
+const prepareDrop = (drop, userId) => {
+  return {
+    dropId: drop._id,
+    title: drop.title,
+    creatorId: drop.creatorId,
+    memeUrl: drop.url,
+    source: drop.source,
+    comments: drop.comments.map(c => prepareComment(c, userId))
+  }
+}
+
+const prepareChat = (chat, userId) => {
+  const preparedMembers = chat.members.map(prepareUserData)
+  const name = chat.name ? chat.name : preparedMembers.filter(member => `${member.userId}` !== userId)[0].name;
+  const messages = chat.messages.map(prepareMessage);
+  return {
+    group: chat.group,
+    messages: messages,
+    chatId: chat._id,
+    members: preparedMembers, 
+    name
+  }
+}
+
+const prepareMessage = (message) => {
+  return {
+    received: message.received,
+    seen: message.seen, 
+    liked: message.liked, 
+    deleted: message.deleted, 
+    text: message.text,
+    sender: message.sender,
+    time: message.time,
+    id: message.id,
+    type: message.type
+  }
+}
+
+const prepareNotification = notification => {
+  if(notification.notificationType === 'NEW_TEXT_MESSAGE'){
+    return {
+      type: 'TEXT_MESSAGE',
+      chatId: notification.chatId,
+      message: prepareMessage(notification.message)
+    }
+  }
+}
+
+exports.prepareSubComment = prepareSubComment;
+exports.prepareComment = prepareComment;
+exports.prepareSelf = prepareSelf;
+exports.prepareUserData = prepareUserData;
 exports.prepareDrop = prepareDrop;
 exports.checkValidation = checkValidation;
-exports.prepareComment = prepareComment;
-exports.prepareSubComment = prepareSubComment;
 exports.getDropFromDB = getDropFromDB;
 exports.getCommnetFromDB = getCommnetFromDB;
 exports.getUserFromDB = getUserFromDB;
+exports.prepareChat = prepareChat;
+exports.prepareMessage = prepareMessage;

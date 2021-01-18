@@ -33,8 +33,25 @@ const userSchema = new Schema({
     }],
     chats: [{type: mongoose.Types.ObjectId, ref: 'Chat'}],
     friends: [{type: mongoose.Types.ObjectId, ref: 'User'}],
-    friendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+    receivedFriendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     sentFriendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+    profilePic: { type: Boolean, required: true },
+
+    notifications: [{
+        notificationType: { type: String, required: true },
+        chatId: { type: mongoose.Types.ObjectId, required: true, ref: 'Chat' },
+        message: {
+            type: {type: String, require: true }, 
+            text: { type: String, required: true },
+            id: { type: Number, required: true },
+            sender: { type: mongoose.Types.ObjectId, ref: 'User'},
+            received: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
+            seen: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
+            liked: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
+            time: { type: Date, required: true },
+            deleted: [{ type: mongoose.Types.ObjectId, ref: 'User'}]
+        }
+    }]
 });
 
 userSchema.plugin(uniqueValidator);

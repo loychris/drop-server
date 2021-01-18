@@ -142,7 +142,9 @@ const voteComment = async (req, res, next) => {
 }
 
 const createSubComment = async (req, res, next) => {
-  const { authorId, actualComment, parentPath } = req.body;
+  const authorId = req.userData.userId;
+  const { actualComment, parentPath } = req.body;
+  console.log(parentPath);
   const commentId = req.params.commentId;
   const author = await getUserFromDB(authorId, next);
   const comment = await getCommnetFromDB(commentId, next);
