@@ -150,7 +150,8 @@ const prepareDrop = (drop, userId) => {
 
 const prepareChat = (chat, userId) => {
   const preparedMembers = chat.members.map(prepareUserData)
-  const name = chat.name ? chat.name : preparedMembers.filter(member => `${member.userId}` !== userId)[0].name;
+  const chatPartner = preparedMembers.filter(member => `${member.userId}` !== userId)[0]
+  const name = chat.name ? chat.name : chatPartner.name;
   const messages = chat.messages.map(prepareMessage);
   return {
     group: chat.group,
@@ -163,14 +164,13 @@ const prepareChat = (chat, userId) => {
 
 const prepareMessage = (message) => {
   return {
-    received: message.received,
     seen: message.seen, 
     liked: message.liked, 
-    deleted: message.deleted, 
     text: message.text,
     sender: message.sender,
-    time: message.time,
-    id: message.id,
+    sentTime: message.sentTime,
+    id: message._id,
+
     type: message.type
   }
 }
@@ -180,7 +180,7 @@ const prepareNotification = notification => {
     return {
       type: 'TEXT_MESSAGE',
       chatId: notification.chatId,
-      message: prepareMessage(notification.message)
+      messageId: notification.messageId
     }
   }
 }

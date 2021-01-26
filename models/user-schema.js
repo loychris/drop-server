@@ -3,6 +3,11 @@ const uniqueValidator = require('mongoose-unique-validator');
 
 const Schema = mongoose.Schema;
 
+const notificationSchema = new Schema({
+        notificationType: { type: String, required: true },
+        chatId: { type: mongoose.Types.ObjectId, required: true, ref: 'Chat' },
+        messageId: { type: mongoose.Types.ObjectId, required: true, ref: 'Message' }
+})
 
 const userSchema = new Schema({
     name: { type: String, required: true },
@@ -36,24 +41,16 @@ const userSchema = new Schema({
     receivedFriendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     sentFriendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     profilePic: { type: Boolean, required: true },
-
-    notifications: [{
-        notificationType: { type: String, required: true },
-        chatId: { type: mongoose.Types.ObjectId, required: true, ref: 'Chat' },
-        message: {
-            type: {type: String, require: true }, 
-            text: { type: String, required: true },
-            id: { type: Number, required: true },
-            sender: { type: mongoose.Types.ObjectId, ref: 'User'},
-            received: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
-            seen: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
-            liked: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
-            time: { type: Date, required: true },
-            deleted: [{ type: mongoose.Types.ObjectId, ref: 'User'}]
-        }
-    }]
+    notifications: [notificationSchema]
 });
+
+const User = mongoose.model("User", userSchema);
+const Notification = mongoose.model("Notification", notificationSchema);
+
 
 userSchema.plugin(uniqueValidator);
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = {
+        User: User,
+        Notification: Notification,
+}

@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const { prepareDrop, prepareComment } = require("../util/util");
 const Drop = require("../models/drop-schema");
-const User = require("../models/user-schema");
+const { User, Notification } = require('../models/user-schema');
 const Comment = require('../models/comment-schema');
 const HttpError = require("../models/http-error");
 const { Storage } = require('@google-cloud/storage');

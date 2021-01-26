@@ -7,8 +7,8 @@ const { Storage } = require('@google-cloud/storage');
 
 const HttpError = require('../models/http-error');
 const { checkValidation, prepareUserData, prepareSelf, prepareChat } = require('../util/util');
-const User = require('../models/user-schema'); 
-const Chat = require('../models/chat-schema'); 
+const { User, Notification } = require('../models/user-schema');
+const { Chat, Message } = require('../models/chat-schema'); 
 
 const signup = async (req, res, next) => {
   checkValidation(req, next);
@@ -257,7 +257,7 @@ const getFriendRequests = async (req, res, next) => {
 
 const sendFriendRequest = async (req, res, next) => {
   const userId = req.userData.userId;
-  const friendId = req.body.friendId; 
+  const { friendId } = req.body; 
   let friend;
   let user;
   try { 
@@ -273,8 +273,13 @@ const sendFriendRequest = async (req, res, next) => {
   if(!user.sentFriendRequests.includes(friendId)){ 
     user.sentFriendRequests.push(friendId);
   }
-  await friend.save();
-  await user  .save();
+  try {
+    await friend.save();
+    await user.save();
+  }catch(err){
+    return next(new HttpError("Something went wrong, please try again later", 500)); 
+  }
+
   res.json({message: "Friend Request Sent!"})
 }
 
@@ -308,13 +313,13 @@ const acceptFriendRequest = async (req, res, next) => {
   }
   const newChat = new Chat({
     group: false,
-    members: [userId, friendId],
+    members: [user, friend],
     admins: [userId, friendId],
     messages: [],
   })
+  user.chats.push(newChat._id);
   user.receivedFriendRequests.pull(friendId);
   user.friends.push(friendId);
-  user.chats.push(newChat._id);
   friend.sentFriendRequests.pull(userId);
   friend.friends.push(userId);
   friend.chats.push(newChat._id);
