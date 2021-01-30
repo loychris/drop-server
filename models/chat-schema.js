@@ -17,6 +17,7 @@ const chatSchema = new mongoose.Schema({
   name: { type: String },
   deleted: { type: Boolean },
   messages: [ messageSchema ],
+  lastInteraction: { type: Number, required: true }
 });
 
 const Chat = mongoose.model("Chat", chatSchema);

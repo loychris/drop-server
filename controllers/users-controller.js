@@ -6,7 +6,13 @@ const path = require('path');
 const { Storage } = require('@google-cloud/storage');
 
 const HttpError = require('../models/http-error');
-const { checkValidation, prepareUserData, prepareSelf, prepareChat } = require('../util/util');
+const { 
+  checkValidation, 
+  prepareUserData, 
+  prepareSelf, 
+  prepareChat, 
+  prepareNotification
+} = require('../util/util');
 const { User, Notification } = require('../models/user-schema');
 const { Chat, Message } = require('../models/chat-schema'); 
 
@@ -283,6 +289,24 @@ const sendFriendRequest = async (req, res, next) => {
   res.json({message: "Friend Request Sent!"})
 }
 
+
+
+//-----------------------------------------------------------------------------------
+
+const getNotifications = async (req, res, next) => {
+  const userId = req.userData.userId;
+  let user;
+  try { 
+    user = await User.findById(userId) 
+  }
+  catch(err){ 
+    return next(new HttpError("Something went wrong. Try again later", 500)) 
+  } 
+  const preparedNotifications = user.notifications.map(prepareNotification); 
+  res.json(preparedNotifications);
+}
+
+
 //-----------------------------------------------------------------------------------
 
 
@@ -365,3 +389,4 @@ exports.acceptFriendRequest = acceptFriendRequest;
 exports.getDataForUsers = getDataForUsers;
 exports.getFriendRequests = getFriendRequests;
 exports.refreshSelf = refreshSelf;
+exports.getNotifications = getNotifications;

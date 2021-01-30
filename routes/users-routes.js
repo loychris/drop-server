@@ -24,6 +24,8 @@ router.get('/friendRequests', auth, usersController.getFriendRequests);
 
 router.get('/refresh', auth, usersController.refreshSelf);
 
+router.get('/notifications', auth, usersController.getNotifications);
+
 router.post('/acceptFriendRequest', auth, usersController.acceptFriendRequest);
 
 router.post('/userdata', usersController.getDataForUsers);

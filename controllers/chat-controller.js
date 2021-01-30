@@ -42,6 +42,7 @@ const newChat = async (req, res, next) => {
             return next(new HttpError("Chat already exists", 409))
         }
         let firstMessage;
+        const now = Date.now(); 
         if(message){
             console.log('THERE WAS A MESSAGE ATTACHED')
             firstMessage = {
@@ -51,7 +52,7 @@ const newChat = async (req, res, next) => {
                 received: [],
                 seen: [userId],
                 liked: [],
-                sentTime: Date.now(),
+                sentTime: now,
             }
         }
         const createdChat = new Chat({
@@ -59,6 +60,7 @@ const newChat = async (req, res, next) => {
             members: [senderId, receiverId],
             admins: [senderId, receiverId],
             messages: message ? [firstMessage] : [],
+            lastInteraction: now,
         })
         console.log('/////////// CREATED CAHT ')
         console.log(createdChat);
@@ -127,6 +129,7 @@ const sendTextMessage = async (req, res, next) => {
     }catch(err){
         return next(new HttpError('Something went wrog could not find User', 500))
     }
+    const now = Date.now();
     const newMessage = new Message({
         messageType: 'text',
         text: message,
@@ -134,23 +137,21 @@ const sendTextMessage = async (req, res, next) => {
         received: [],
         seen: [userId],
         liked: [],
-        sentTime: Date.now(),
+        sentTime: now,
     })
-    console.log('MESSAGE ID', newMessage._id);
     const newNotification = {
         notificationType: 'NEW_TEXT_MESSAGE',
         chatId: chatId,
-        messageId: newMessage._id
+        message: newMessage
     }
-    console.log('//////////////')
     receiver.notifications.push(newNotification); 
     chat.messages.push(newMessage);
-    console.log('//////////////')
+    chat.lastInteraction = now;
     try{
         await receiver.save(); 
     }catch(err){
         console.log(err);
-        return next(new HttpError(''))  
+        return next(new HttpError('Something went wrong. Please try again later', 500));  
     }
     try{
         await chat.save()
@@ -183,24 +184,17 @@ const readTextMessages = async (req, res, next) => {
     }catch(err){
         return next(new HttpError('Something went wrog could not find User', 500))
     }
-    console.log("User.notifications.length (before) ", user.notifications.length);
-    user.notifications.pull({notificationType: 'NEW_TEXT_MESSAGE', message: { id: message.id}});
-    console.log("User.notifications.length (after) ", user.notifications.length);
-
+    const notificationsNew = user.notifications
+        .filter(n => !(
+            n.notificationType === 'NEW_TEXT_MESSAGE' 
+            && `${n.chatId}` === chatId 
+            && messageIds.some(id => id === `${n.messageId}`)
+        ))
+    user.notifications = notificationsNew;
     try{
         await user.save();
     }catch(err){
         console.log('PULL ERROR', err);
-    }
-
-    try{
-        await Chat.updateOne(
-            {_id: chatId}, 
-            {$push: {messages: message}}
-        )
-    }catch(err){
-        console.log(err);
-        return next(new HttpError("Something went wrong while saving Userdata", 500));
     }
     res.json({message: "Message successfully marked as seen"});
 }

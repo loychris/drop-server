@@ -14,11 +14,12 @@ router.get('/api/chat/:chatId', auth, chatController.getChat);
 
 router.post('/api/chat/', auth, chatController.newChat);
 
-router.post('/api/chat/:chatId/readTextMessages', auth, chatController.readTextMessages);
 
 // router.delete('/:chatId', auth, chatController.deleteChat);
 
 router.post('/api/chat/:chatId/textMessage', auth, chatController.sendTextMessage);
+
+router.post('/api/chat/:chatId/read', auth, chatController.readTextMessages)
 
 // router.post('/:chatId/message/received', auth, messageReceived)
 

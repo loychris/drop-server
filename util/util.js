@@ -158,7 +158,8 @@ const prepareChat = (chat, userId) => {
     messages: messages,
     chatId: chat._id,
     members: preparedMembers, 
-    name
+    name,
+    lastInteraction: chat.lastInteraction
   }
 }
 
@@ -180,7 +181,7 @@ const prepareNotification = notification => {
     return {
       type: 'TEXT_MESSAGE',
       chatId: notification.chatId,
-      messageId: notification.messageId
+      message: prepareMessage(notification.message)
     }
   }
 }
@@ -196,3 +197,4 @@ exports.getCommnetFromDB = getCommnetFromDB;
 exports.getUserFromDB = getUserFromDB;
 exports.prepareChat = prepareChat;
 exports.prepareMessage = prepareMessage;
+exports.prepareNotification = prepareNotification;
