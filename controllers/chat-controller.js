@@ -184,13 +184,21 @@ const readTextMessages = async (req, res, next) => {
     }catch(err){
         return next(new HttpError('Something went wrog could not find User', 500))
     }
+    console.log('-----------------------------');
+    console.log('IDS', messageIds);
+    console.log('ID ', user.notifications.map(n => n.message.id))
+    console.log('BEFORE', user.notifications.length);
     const notificationsNew = user.notifications
-        .filter(n => !(
-            n.notificationType === 'NEW_TEXT_MESSAGE' 
-            && `${n.chatId}` === chatId 
-            && messageIds.some(id => id === `${n.messageId}`)
-        ))
+        .filter(n => {
+            return !(n.notificationType === 'NEW_TEXT_MESSAGE'
+            && `${n.chatId}` === `${chatId}`
+            && messageIds.some(id => id === `${n.message._id}`))
+        })
+    console.log(notificationsNew.length);
+
     user.notifications = notificationsNew;
+    console.log('AFTER', user.notifications.length);
+    console.log('-----------------------------');
     try{
         await user.save();
     }catch(err){
