@@ -13,7 +13,7 @@ const {
   prepareChat, 
   prepareNotification
 } = require('../util/util');
-const { User, Notification } = require('../models/user-schema');
+const { User, Notification, EmailListUser } = require('../models/user-schema');
 const { Chat, Message } = require('../models/chat-schema'); 
 
 const signup = async (req, res, next) => {
@@ -80,9 +80,6 @@ const signup = async (req, res, next) => {
       next(err);
     });
     stream.on('finish', () => {
-      console.log('/////////////');
-      console.log(`uploaded ${gcsname} to drop-profile-pictures-bucket`);
-      console.log('/////////////');
       req.file.cloudStorageObject = gcsname;
     });
     stream.end(req.file.buffer);
@@ -379,6 +376,47 @@ const getDataForUsers = async (req, res, next) => {
   res.json(preparedUsers);
 }
 
+const joinEmailList = async (req, res, next) => {
+  if(!req.body || !req.body.email){
+    return next(new HttpError("No email provided", 400));
+  }
+  const email = req.body.email.toLowerCase();
+  let existingEmailListUser;
+  try {
+    existingEmailListUser = await EmailListUser.findOne({email: email})
+  }catch(err){
+    console.log(err);
+    return next(new HttpError("Something went wrong. Please try again later.", 500));
+  }
+  if(existingEmailListUser){
+    if(existingEmailListUser.subscribed){
+      return next(new HttpError("User already subscribed", 409))
+    }else {
+      //resubscribing
+      existingEmailListUser.subscribed = true
+      try {
+        await existingEmailListUser.save();
+      }catch(err){
+        console.log(err);
+        return next(new HttpError("Something went wrong. Please Try again later", 500))
+      }
+      res.status(201).json({message: "Reubscribed successfully"}, 201)
+    }
+  }
+  const newSubscriber = new EmailListUser({
+    email: req.body.email,
+    subscribed: true,
+    signupDate: Date.now(), 
+  })
+  try {
+    await newSubscriber.save();
+  }catch(err){
+    console.log(err);
+    return next(new HttpError("Something went wrong. Please try again later", 500));
+  }
+  res.json({message: "Subscribed!"});
+}
+
 exports.checkHandle = checkHandle;
 exports.checkEmail = checkEmail;
 exports.signup = signup;
@@ -390,3 +428,4 @@ exports.getDataForUsers = getDataForUsers;
 exports.getFriendRequests = getFriendRequests;
 exports.refreshSelf = refreshSelf;
 exports.getNotifications = getNotifications;
+exports.joinEmailList = joinEmailList;

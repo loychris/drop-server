@@ -3,6 +3,12 @@ const uniqueValidator = require('mongoose-unique-validator');
 
 const Schema = mongoose.Schema;
 
+const EmailListUserSchema = new mongoose.Schema({
+        email: { type: String, required: true },
+        subscribed: { type: Boolean, required: true },
+        signupDate: { type: String, required: true }, 
+})
+
 const messageSchema = new mongoose.Schema({
         messageType: {type: String, require: true }, 
         text: { type: String, required: true },
@@ -56,6 +62,7 @@ const userSchema = new Schema({
 
 const User = mongoose.model("User", userSchema);
 const Notification = mongoose.model("Notification", notificationSchema);
+const EmailListUser = mongoose.model("EmailListUser", EmailListUserSchema);
 
 
 userSchema.plugin(uniqueValidator);
@@ -63,4 +70,5 @@ userSchema.plugin(uniqueValidator);
 module.exports = {
         User: User,
         Notification: Notification,
+        EmailListUser: EmailListUser,  
 }

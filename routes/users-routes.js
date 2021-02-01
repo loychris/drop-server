@@ -20,6 +20,8 @@ router.post('/login', usersController.login);
 
 router.post('/addFriend', auth, usersController.sendFriendRequest);
 
+router.post('/emaillist', usersController.joinEmailList);
+
 router.get('/friendRequests', auth, usersController.getFriendRequests);
 
 router.get('/refresh', auth, usersController.refreshSelf);
@@ -35,5 +37,6 @@ router.post('/checkHandle', check('handle').isLength({min: 4, max: 20}), usersCo
 router.post('/checkEmail', check('email').normalizeEmail().isEmail(), usersController.checkEmail);
 
 router.get('/', usersController.getAllUsers);
+
 
 module.exports = router;
