@@ -383,7 +383,7 @@ const joinEmailList = async (req, res, next) => {
   const email = req.body.email.toLowerCase();
   let existingEmailListUser;
   try {
-    existingEmailListUser = await EmailListUser.findOne({email: email})
+    existingEmailListUser = await EmailListUser.findOne({email: email}).exec();
   }catch(err){
     console.log(err);
     return next(new HttpError("Something went wrong. Please try again later.", 500));

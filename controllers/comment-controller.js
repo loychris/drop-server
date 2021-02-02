@@ -3,38 +3,46 @@ const mongoose = require('mongoose');
 
 const { prepareDrop, prepareComment, prepareSubComment } = require("../util/util");
 const Drop = require("../models/drop-schema");
-const User = require("../models/user-schema");
+const { User } = require('../models/user-schema');
 const Comment = require('../models/comment-schema');
 const HttpError = require("../models/http-error");
 
 const createComment = async (req, res, next) => {
-    const { authorId, comment } = req.body;
-    const dropId = req.params.dropId; 
-    const author = await getUserFromDB(authorId, next);
-    const drop = await getDropFromDB(dropId, next);
-    
-    const createdComment = new Comment({
-        comment,
-        drop,
-        author: authorId,
-        posted: new Date(),
-        upVoters: [],
-        downVoters: [],
-        subComments: [],
-        nextSubId: 0
-    });
-    try {
-        await createdComment.save(),
-        author.writtenComments.push(createdComment);
-        await author.save();
-        drop.comments.push(createdComment);
-        await drop.save();
-    } catch(err){
-        console.log(err);
-        return next(new HttpError("Creating comment failed, please try again", 500))
-    }
-    const preparedComment = prepareComment(createdComment);
-    res.status(201).json(preparedComment);
+  const userId = req.userData.userId;
+  const { comment } = req.body;
+  const { dropId } = req.params; 
+  let user;
+  try{
+    user = await User.findById(userId)
+  }catch(err){ console.log(err); return next(new HttpError('Something went wrong. Try again later.', 500))}
+  if(!user){    return next(new HttpError('User not found', 404))}  
+  let drop; 
+  try{
+    drop = await Drop.findById(dropId);
+  }catch(err){ console.log('1'); return next(new HttpError('Something went wrong. Try again later.', 500))}
+  if(!drop){    return next(new HttpError('Drop not found', 404))}  
+  const createdComment = new Comment({
+      comment,
+      drop: dropId,
+      author: userId,
+      posted: new Date(),
+      upVoters: [],
+      downVoters: [],
+      subComments: [],
+      nextSubId: 0
+  });
+  user.writtenComments.push(createdComment._id);
+  drop.comments.push(createdComment._id);
+  try {
+    await createdComment.save(),
+    await user.save();
+    await drop.save();
+  } catch(err){
+    console.log(err);
+    return next(new HttpError("Creating comment failed, please try again", 500))
+  }
+  const preparedComment = prepareComment(createdComment);
+  res.status(201).json(preparedComment);
 }
 
 const getComment = async (req, res, next) => {

@@ -180,8 +180,9 @@ const prepareNotification = notification => {
   if(notification.notificationType === 'NEW_TEXT_MESSAGE'){
     return {
       type: 'TEXT_MESSAGE',
+      id: notification._id,
       chatId: notification.chatId,
-      message: prepareMessage(notification.message)
+      message: prepareMessage(notification.message),
     }
   }
 }
