@@ -14,8 +14,9 @@ router.get('/api/chat/:chatId', auth, chatController.getChat);
 
 router.post('/api/chat/', auth, chatController.newChat);
 
-
 // router.delete('/:chatId', auth, chatController.deleteChat);
+
+router.post('/api/chat/dropMessage', auth, chatController.sendDropMessage);
 
 router.post('/api/chat/:chatId/textMessage', auth, chatController.sendTextMessage);
 

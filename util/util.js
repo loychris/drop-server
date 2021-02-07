@@ -164,26 +164,37 @@ const prepareChat = (chat, userId) => {
 }
 
 const prepareMessage = (message) => {
-  return {
-    seen: message.seen, 
-    liked: message.liked, 
-    text: message.text,
-    sender: message.sender,
-    sentTime: message.sentTime,
-    id: message._id,
-
-    type: message.type
+  switch(message.messageType){
+    case 'text': 
+      return {
+        seen: message.seen, 
+        liked: message.liked, 
+        text: message.text,
+        sender: message.sender,
+        sentTime: message.sentTime,
+        id: message._id,
+        type: message.messageType
+      }
+    case 'drop': 
+      return {
+        seen: message.seen, 
+        liked: message.liked, 
+        title: message.title,
+        dropId: message.dropId, 
+        sender: message.sender,
+        sentTime: message.sentTime,
+        id: message._id,
+        type: message.messageType
+      }
   }
 }
 
 const prepareNotification = notification => {
-  if(notification.notificationType === 'NEW_TEXT_MESSAGE'){
-    return {
-      type: 'TEXT_MESSAGE',
-      id: notification._id,
-      chatId: notification.chatId,
-      message: prepareMessage(notification.message),
-    }
+  return {
+    type: notification.notificationType,
+    id: notification._id,
+    chatId: notification.chatId,
+    message: prepareMessage(notification.message),
   }
 }
 

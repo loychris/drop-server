@@ -11,13 +11,18 @@ const EmailListUserSchema = new mongoose.Schema({
 
 const messageSchema = new mongoose.Schema({
         messageType: {type: String, require: true }, 
-        text: { type: String, required: true },
-        sender: { type: mongoose.Types.ObjectId, ref: 'User'},
-        received: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
-        seen: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
-        liked: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
+        sender: { type: mongoose.Types.ObjectId, required: true, ref: 'User'},
+        received: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
+        seen: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
+        liked: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
         sentTime: { type: Number, required: true },
-})
+      
+        // TEXT MESSAGE
+        text: { type: String },
+        // DROP MESSAGE
+        title: { type: String },
+        dropId: { type: mongoose.Types.ObjectId, ref: 'drop'},
+      })
 
 const notificationSchema = new Schema({
         notificationType: { type: String, required: true },

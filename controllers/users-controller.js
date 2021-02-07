@@ -309,7 +309,7 @@ const getNotifications = async (req, res, next) => {
 
 const acceptFriendRequest = async (req, res, next) => {
   const userId = req.userData.userId;
-  const { friendId } = req.body;
+  const { friendId, existingChatId } = req.body;
   console.log(friendId);
   let user;
   try { 
@@ -332,27 +332,41 @@ const acceptFriendRequest = async (req, res, next) => {
   if(!friend.sentFriendRequests.includes(userId)) {
     return next(new HttpError("No Friend Request found", 404));
   }
-  const newChat = new Chat({
-    group: false,
-    members: [user, friend],
-    admins: [userId, friendId],
-    messages: [],
-  })
-  user.chats.push(newChat._id);
+  let chat;
+  if(existingChatId){
+    try { 
+      chat = await Chat.findById(existingChatId) }
+    catch(err){  
+      return next(new HttpError("Something went wrong. Try again later", 500)) 
+    }  
+    chat.lastInteraction = Date.now();
+  }else {
+    chat = new Chat({
+      group: false,
+      members: [user, friend],
+      admins: [userId, friendId],
+      messages: [],
+      lastInteraction: Date.now(),
+    })
+    friend.chats.push(chat._id);
+    user.chats.push(chat._id);
+  }
   user.receivedFriendRequests.pull(friendId);
   user.friends.push(friendId);
   friend.sentFriendRequests.pull(userId);
   friend.friends.push(userId);
-  friend.chats.push(newChat._id);
   try{
     await friend.save();
     await user.save();
-    await newChat.save();
+    await chat.save();
   }catch(err){ 
+    console.log(err);
     return next(new HttpError('Something went wrong while saving. Please try again later', 500))
   }
+
+
   const preparedFriend = prepareUserData(friend);
-  const preparedChat = prepareChat(newChat);
+  const preparedChat = prepareChat(chat);
   res.json({ friend: preparedFriend, chat: preparedChat});
 }
 

@@ -11,7 +11,6 @@ module.exports = (req, res, next) => {
       const decodedToken = jwt.verify(token, 'supersecret_private_key_dont_share');
       req.userData = { userId: decodedToken.userId }
   } catch (err) {
-      console.log(err);
       return next(new HttpError('Authentification failed!', 401));
   }
   next();
