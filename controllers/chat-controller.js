@@ -239,13 +239,10 @@ const sendDropMessage = async (req, res, next) => {
         return { userId: receiverId, chat: prepareChat(prePreparedChat) } 
     })
 
-    const messageReplacementResult = await Promise.all(messageReplacements);
-    const chatReplacementResult = await Promise.all(chatReplacements);
-
-
-    console.log('RESULT');
-    console.log({ messageReplacements:  messageReplacementResult, chatReplacements: chatReplacementResult });
-    res.json({messageReplacements: messageReplacementResult, chatReplacements: chatReplacementResult});
+    res.json({
+        messageReplacements: await Promise.all(messageReplacements), 
+        chatReplacements: await Promise.all(chatReplacements),
+    });
 }
 
 const sendTextMessage = async (req, res, next) => {
