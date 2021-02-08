@@ -309,7 +309,7 @@ const getNotifications = async (req, res, next) => {
 
 const acceptFriendRequest = async (req, res, next) => {
   const userId = req.userData.userId;
-  const { friendId, existingChatId } = req.body;
+  const { friendId } = req.body;
   console.log(friendId);
   let user;
   try { 
@@ -333,13 +333,18 @@ const acceptFriendRequest = async (req, res, next) => {
     return next(new HttpError("No Friend Request found", 404));
   }
   let chat;
-  if(existingChatId){
-    try { 
-      chat = await Chat.findById(existingChatId) }
-    catch(err){  
-      return next(new HttpError("Something went wrong. Try again later", 500)) 
-    }  
-    chat.lastInteraction = Date.now();
+  let chats = [];
+  try{
+    chats = await Chat.find().where('_id').in(user.chats).exec();
+  }catch(err){
+    return next(new HttpError("Something went wrong. Try again later", 500)) 
+  }
+  let existingChat = chats.find(c => c.members.some(id => `${id}` === friendId));
+  if(existingChat){
+    console.log('EXISTING CHAT');
+    console.log(existingChat);
+    chat = existingChat
+    chat.members = [user, friend];
   }else {
     chat = new Chat({
       group: false,

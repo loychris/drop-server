@@ -190,6 +190,7 @@ const prepareMessage = (message) => {
 }
 
 const prepareNotification = notification => {
+  if(!notification.message) console.log(notification)
   return {
     type: notification.notificationType,
     id: notification._id,

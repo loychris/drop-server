@@ -44,9 +44,15 @@ const newChat = async (req, res, next) => {
         }
         let firstMessage;
         const now = Date.now(); 
+        let createdChat = new Chat({
+            group: false,
+            members: [senderId, receiverId],
+            admins: [senderId, receiverId],
+            messages: [],
+            lastInteraction: now,
+        })
         if(message){
-            console.log('THERE WAS A MESSAGE ATTACHED')
-            firstMessage = {
+            const firstMessage = new Message({
                 messageType: 'text',
                 text: message,
                 sender: userId,
@@ -54,21 +60,21 @@ const newChat = async (req, res, next) => {
                 seen: [userId],
                 liked: [],
                 sentTime: now,
-            }
+            });
+            const notification = new Notification({
+                notificationType: 'NEW_MESSAGE_TEXT',
+                chatId: createdChat._id,
+                message: firstMessage
+            });
+            receiver.notifications.push(notification),
+            createdChat.messages.push(firstMessage);
         }
-        const createdChat = new Chat({
-            group: false,
-            members: [senderId, receiverId],
-            admins: [senderId, receiverId],
-            messages: message ? [firstMessage] : [],
-            lastInteraction: now,
-        })
         receiver.chats.push(createdChat._id)
         user.chats.push(createdChat._id)
         try {
-            await receiver.save()
-            await user.save()
-            await createdChat.save()
+            await receiver.save();
+            await user.save();
+            await createdChat.save();
         }catch(err){
             console.log(err);
             return next(new HttpError('Something went wrong. Try again later 3', 500)) 
@@ -176,6 +182,7 @@ const sendDropMessage = async (req, res, next) => {
             return next(new HttpError('Something went wrong. Please try again later', 500));
         }
         console.log('LOOP');
+        
         return { chatId: chat._id, message: prepareMessage(newMessage) };
     })
 
@@ -224,12 +231,14 @@ const sendDropMessage = async (req, res, next) => {
         try {
             receiver.save();
             user.save();
+            createdChat.save(); 
         }catch(err){
             console.log('888888888888')
             console.log(err);
             return next(new HttpError('There was a problem. Please try again later', 500));
         }
         let prePreparedChat = {
+            chatId: createdChat._id, 
             group: false,
             members: [user, receiver],
             admins: [userId, receiverId],
@@ -295,11 +304,11 @@ const sendTextMessage = async (req, res, next) => {
                 sentTime: now,
             })
     }
-    const newNotification = {
+    const newNotification = new Notification({
         notificationType: 'NEW_MESSAGE_TEXT',
         chatId: chatId,
         message: newMessage
-    }
+    })
     receiver.notifications.push(newNotification); 
     chat.messages.push(newMessage);
     chat.lastInteraction = now;
@@ -356,7 +365,6 @@ const readTextMessages = async (req, res, next) => {
     }
     res.json({message: 'Message successfully marked as seen'});
 }
-
 
 const getChats = async (req, res, next) => {
     const userId = req.userData.userId;
