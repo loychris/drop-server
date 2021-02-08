@@ -261,29 +261,68 @@ const getFriendRequests = async (req, res, next) => {
 const sendFriendRequest = async (req, res, next) => {
   const userId = req.userData.userId;
   const { friendId } = req.body; 
-  let friend;
-  let user;
+  let friend, user;
   try { 
     user = await User.findById(userId) }
   catch(err){ return next(new HttpError("Something went wrong. Try again later", 500)) }   
-  try {
+  try { 
     friend = await User.findById(friendId)
   }catch(err){ return next(new HttpError("Something went wrong. Try again later", 500)) }
   if(!friend){ return next(new HttpError("No user found with FriendId", 404)) }
-  if(!friend.receivedFriendRequests.includes(userId)){ 
-    friend.receivedFriendRequests.push(userId);
-  }
-  if(!user.sentFriendRequests.includes(friendId)){ 
-    user.sentFriendRequests.push(friendId);
-  }
-  try {
-    await friend.save();
-    await user.save();
-  }catch(err){
-    return next(new HttpError("Something went wrong, please try again later", 500)); 
-  }
 
-  res.json({message: "Friend Request Sent!"})
+  if(user.receivedFriendRequests.some(id => `${id}` === friendId)){
+    // Both clicked on Add siultaneously
+    let chat;
+    let chats = [];
+    try{
+      chats = await Chat.find().where('_id').in(user.chats).exec();
+    }catch(err){
+      return next(new HttpError("Something went wrong. Try again later", 500)) 
+    }
+    let existingChat = chats.find(c => c.members.some(id => `${id}` === friendId));
+    if(existingChat){
+      chat = existingChat;
+    }else {
+      chat = new Chat({
+        group: false,
+        members: [userId, friendId],
+        admins: [userId, friendId],
+        messages: [],
+        lastInteraction: Date.now(),
+      })
+    }
+    friend.chats.push(chat._id);
+    friend.sentFriendRequests.pull(userId);
+    friend.friends.push(userId);
+    user.chats.push(chat._id);
+    user.receivedFriendRequests.pull(friendId);
+    user.friends.push(friendId);
+    try{
+      await user.save();
+      await friend.save();
+      await chat.save();
+    }catch(err){
+      return next(new HttpError('Something went wrong. Please Try again later', 500));
+    }
+    chat.members = [user, friend];
+    const preparedChat = prepareChat(chat);
+    res.json({message: "Both requested. Friendshit established", chat: preparedChat})
+  } else {
+    if(!friend.receivedFriendRequests.includes(userId)){ 
+      friend.receivedFriendRequests.push(userId);
+    }
+    if(!user.sentFriendRequests.includes(friendId)){ 
+      user.sentFriendRequests.push(friendId);
+    }
+    try {
+      await friend.save();
+      await user.save();
+    }catch(err){
+      return next(new HttpError("Something went wrong, please try again later", 500)); 
+    }
+  
+    res.json({message: "Friend Request Sent!"})
+  }
 }
 
 
@@ -310,7 +349,6 @@ const getNotifications = async (req, res, next) => {
 const acceptFriendRequest = async (req, res, next) => {
   const userId = req.userData.userId;
   const { friendId } = req.body;
-  console.log(friendId);
   let user;
   try { 
     user = await User.findById(userId) }
@@ -341,8 +379,7 @@ const acceptFriendRequest = async (req, res, next) => {
   }
   let existingChat = chats.find(c => c.members.some(id => `${id}` === friendId));
   if(existingChat){
-    console.log('EXISTING CHAT');
-    console.log(existingChat);
+
     chat = existingChat
     chat.members = [user, friend];
   }else {
