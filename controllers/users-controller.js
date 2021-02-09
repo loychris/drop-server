@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const { Storage } = require('@google-cloud/storage');
-
 const HttpError = require('../models/http-error');
 const { 
   checkValidation, 
@@ -17,11 +16,14 @@ const {
 const { User, Notification, EmailListUser } = require('../models/user-schema');
 const { Chat, Message } = require('../models/chat-schema'); 
 
+const reservedHandles = ['elon', 'json', 'chamath', 'david', 'jack', 'naval', 'kim', 'zuck']
+
 const signup = async (req, res, next) => {
   checkValidation(req, next);
   const { name, email, handle, password } = req.body;
   let user;
   //check handle
+  if(reservedHandles.some(h => h === handle)) return next(new HttpError(`Handle already taken. Please try another.`, 422))}   
   try{
     user = await User.findOne({handle: handle})
   }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
