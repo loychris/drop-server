@@ -190,13 +190,23 @@ const prepareMessage = (message) => {
 }
 
 const prepareNotification = notification => {
-  if(!notification.message) console.log(notification)
-  return {
-    type: notification.notificationType,
-    id: notification._id,
-    chatId: notification.chatId,
-    message: prepareMessage(notification.message),
-  }
+  switch(notification.notificationType){
+    case 'NEW_MESSAGE_DROP':
+    case 'NEW_MESSAGE_TEXT': 
+      return {
+        type: notification.notificationType,
+        id: notification._id,
+        chatId: notification.chatId,
+        message: prepareMessage(notification.message),
+      }
+    case 'NEW_CHAT_WITH_MESSAGE': 
+      return {
+        type: notification.notificationType,
+        id: notification._id,
+        chatId: notification.chatId,
+        message: prepareMessage(notification.message),
+      }
+    }
 }
 
 exports.prepareSubComment = prepareSubComment;

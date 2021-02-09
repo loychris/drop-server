@@ -11,7 +11,8 @@ const {
   prepareUserData, 
   prepareSelf, 
   prepareChat, 
-  prepareNotification
+  prepareNotification,
+  prepareMessage
 } = require('../util/util');
 const { User, Notification, EmailListUser } = require('../models/user-schema');
 const { Chat, Message } = require('../models/chat-schema'); 
@@ -20,9 +21,6 @@ const signup = async (req, res, next) => {
   checkValidation(req, next);
   const { name, email, handle, password } = req.body;
   let user;
-
-  console.log(req.file);
-
   //check handle
   try{
     user = await User.findOne({handle: handle})
@@ -166,7 +164,6 @@ const refreshSelf = async (req, res, next) => {
       .populate({path: 'friends', model: 'User'})
       .populate({path: 'chats', model: 'Chat', populate: 'members'})
   }catch(err){ 
-    console.log(err);
     return next(new HttpError('Refresh Userdata failed. Try again later', 500))
   }
   if(!self){
@@ -182,7 +179,7 @@ const refreshSelf = async (req, res, next) => {
   }catch(err){ 
     return next(new HttpError('Register User failed, please try again later.', 500))
   }
-  const preparedSelf = prepareSelf(self, token);
+  const preparedSelf = await prepareSelf(self, token);
   res.json(preparedSelf);
 }
 //-----------------------------------------------------------------------------------
@@ -245,7 +242,6 @@ const getFriendRequests = async (req, res, next) => {
   try{
     user = await User.findById(userId).populate("receivedFriendRequests").exec();
   }catch(err){
-    console.log(err)
     return next(new HttpError('There was a problem while fetching the friendRequests', 500));
   }
   if(!user){ 
@@ -290,11 +286,11 @@ const sendFriendRequest = async (req, res, next) => {
         messages: [],
         lastInteraction: Date.now(),
       })
+      user.chats.push(chat._id);
     }
     friend.chats.push(chat._id);
     friend.sentFriendRequests.pull(userId);
     friend.friends.push(userId);
-    user.chats.push(chat._id);
     user.receivedFriendRequests.pull(friendId);
     user.friends.push(friendId);
     try{
@@ -344,7 +340,6 @@ const getNotifications = async (req, res, next) => {
 
 
 //-----------------------------------------------------------------------------------
-
 
 const acceptFriendRequest = async (req, res, next) => {
   const userId = req.userData.userId;
@@ -402,7 +397,6 @@ const acceptFriendRequest = async (req, res, next) => {
     await user.save();
     await chat.save();
   }catch(err){ 
-    console.log(err);
     return next(new HttpError('Something went wrong while saving. Please try again later', 500))
   }
 
@@ -414,6 +408,25 @@ const acceptFriendRequest = async (req, res, next) => {
 
 //-----------------------------------------------------------------------------------
 
+const deleteNotification = async (req, res, next) => {
+  const { notificationId } = req.params;
+  const { userId } = req.userData;
+  let user;
+  try{
+    user = await User.findById(userId).populate("receivedFriendRequests").exec();
+  }catch(err){
+    return next(new HttpError('There was a problem. Please try again later.', 500));
+  }
+  user.notifications.pull({_id: notificationId})
+  try {
+    user.save();
+  }catch(err){
+    return next(new HttpError('There was a problem. Please try again later.', 500));
+  }
+  res.json({message: "notification removed successfully"});
+}
+
+//-----------------------------------------------------------------------------------
 
 const getDataForUsers = async (req, res, next) => {
   const { userIds } = req.body;
@@ -423,11 +436,6 @@ const getDataForUsers = async (req, res, next) => {
   }catch(err){
     return next(new HttpError("Someting went wrong. Please try again later", 500));
   } 
-  if(userIds.length !== users.length) console.log(`
-    One or more Users werent found
-    ${userIds}
-    ${users}
-  `)
   const preparedUsers = users.map(prepareUserData);
   res.json(preparedUsers);
 }
@@ -441,7 +449,6 @@ const joinEmailList = async (req, res, next) => {
   try {
     existingEmailListUser = await EmailListUser.findOne({email: email}).exec();
   }catch(err){
-    console.log(err);
     return next(new HttpError("Something went wrong. Please try again later.", 500));
   }
   if(existingEmailListUser){
@@ -453,7 +460,6 @@ const joinEmailList = async (req, res, next) => {
       try {
         await existingEmailListUser.save();
       }catch(err){
-        console.log(err);
         return next(new HttpError("Something went wrong. Please Try again later", 500))
       }
       res.status(201).json({message: "Reubscribed successfully"}, 201)
@@ -467,7 +473,6 @@ const joinEmailList = async (req, res, next) => {
   try {
     await newSubscriber.save();
   }catch(err){
-    console.log(err);
     return next(new HttpError("Something went wrong. Please try again later", 500));
   }
   res.json({message: "Subscribed!"});
@@ -484,4 +489,5 @@ exports.getDataForUsers = getDataForUsers;
 exports.getFriendRequests = getFriendRequests;
 exports.refreshSelf = refreshSelf;
 exports.getNotifications = getNotifications;
+exports.deleteNotification = deleteNotification;
 exports.joinEmailList = joinEmailList;

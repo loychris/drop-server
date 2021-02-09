@@ -36,6 +36,8 @@ router.post('/checkHandle', check('handle').isLength({min: 4, max: 20}), usersCo
 
 router.post('/checkEmail', check('email').normalizeEmail().isEmail(), usersController.checkEmail);
 
+router.delete('/notification/:notificationId', auth, usersController.deleteNotification);
+
 router.get('/', usersController.getAllUsers);
 
 

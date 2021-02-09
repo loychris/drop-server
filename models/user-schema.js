@@ -4,30 +4,30 @@ const uniqueValidator = require('mongoose-unique-validator');
 const Schema = mongoose.Schema;
 
 const EmailListUserSchema = new mongoose.Schema({
-        email: { type: String, required: true },
-        subscribed: { type: Boolean, required: true },
-        signupDate: { type: String, required: true }, 
+    email: { type: String, required: true },
+    subscribed: { type: Boolean, required: true },
+    signupDate: { type: String, required: true }, 
 })
 
 const messageSchema = new mongoose.Schema({
-        messageType: {type: String, require: true }, 
-        sender: { type: mongoose.Types.ObjectId, required: true, ref: 'User'},
-        received: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
-        seen: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
-        liked: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
-        sentTime: { type: Number, required: true },
-      
-        // TEXT MESSAGE
-        text: { type: String },
-        // DROP MESSAGE
-        title: { type: String },
-        dropId: { type: mongoose.Types.ObjectId, ref: 'drop'},
-      })
+    messageType: {type: String, require: true }, 
+    sender: { type: mongoose.Types.ObjectId, required: true, ref: 'User'},
+    received: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
+    seen: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
+    liked: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}],
+    sentTime: { type: Number, required: true },
+    
+    // TEXT MESSAGE
+    text: { type: String },
+    // DROP MESSAGE
+    title: { type: String },
+    dropId: { type: mongoose.Types.ObjectId, ref: 'drop'},
+})
 
 const notificationSchema = new Schema({
-        notificationType: { type: String, required: true },
-        chatId: { type: mongoose.Types.ObjectId, required: true, ref: 'Chat' },
-        message: messageSchema
+    notificationType: { type: String, required: true },
+    chatId: { type: mongoose.Types.ObjectId, required: true, ref: 'Chat' },
+    message: messageSchema,
 })
 
 const userSchema = new Schema({

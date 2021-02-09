@@ -6,15 +6,11 @@ const { prepareChat, prepareMessage, prepareUserData } = require('../util/util')
 
 const newChat = async (req, res, next) => {
     const { group, members, name, message } = req.body;
-    console.log(req.body);
     const senderId = req.userData.userId;
     if(group){  
-        // new group chat
-        console.log(`New group with name ${name}`);
     } else { 
         // new 1on1 Chat
         const userId = req.userData.userId;
-        console.log('USER ID: ', userId);
         const receiverId = members.filter(id => id !== userId)[0];
         let user;
         let receiver;
@@ -22,13 +18,11 @@ const newChat = async (req, res, next) => {
             user = await User.findById(userId).populate('chats').exec();
         }
         catch(err){  
-            console.log(err);
             return next(new HttpError('Something went wrong. Try again later 1', 500)) 
         }  
         try{
             receiver = await User.findById(receiverId);
         }catch(err){
-            console.log(err);
             return next(new HttpError('Something went wrong. Try again later 2', 500)) 
         }
         if(!receiver){
@@ -52,7 +46,7 @@ const newChat = async (req, res, next) => {
             lastInteraction: now,
         })
         if(message){
-            const firstMessage = new Message({
+            firstMessage = new Message({
                 messageType: 'text',
                 text: message,
                 sender: userId,
@@ -62,11 +56,11 @@ const newChat = async (req, res, next) => {
                 sentTime: now,
             });
             const notification = new Notification({
-                notificationType: 'NEW_MESSAGE_TEXT',
+                notificationType: 'NEW_CHAT_WITH_MESSAGE',
                 chatId: createdChat._id,
-                message: firstMessage
+                message: firstMessage,
             });
-            receiver.notifications.push(notification),
+            receiver.notifications.push(notification);
             createdChat.messages.push(firstMessage);
         }
         receiver.chats.push(createdChat._id)
@@ -76,7 +70,6 @@ const newChat = async (req, res, next) => {
             await user.save();
             await createdChat.save();
         }catch(err){
-            console.log(err);
             return next(new HttpError('Something went wrong. Try again later 3', 500)) 
         }
         let preparedChat = prepareChat(createdChat, userId);
@@ -98,7 +91,7 @@ const getChat = async (req, res, next) => {
     if(!chat){
         return next(new HttpError('Chat not found', 404))
     }
-    if(!chat.members.some(member => member._id === req.userData.userId)){
+    if(!chat.members.some(member => `${member._id}` === `${req.userData.userId}`)){
         return next(new HttpError('Authentification failed!', 401));
     }
     const preparedChat = prepareChat(chat);
@@ -113,25 +106,17 @@ const sendDropMessage = async (req, res, next) => {
     const { chatIds, dropId } = req.body;
     const realChatIds = chatIds.filter(id => !id.startsWith('dummy'));
     const newChatUserIds = chatIds.filter(id => id.startsWith('dummy')).map(id => id.substring(5, id.length)); 
-    console.log('REAL CHAT IDS');
-    console.log(realChatIds);
-    console.log('NEW CHAT USER IDS: ')
-    console.log(newChatUserIds); 
     let chats = [];
     let drop;
     const now = Date.now();
     try{
         chats = await Chat.find().where('_id').in(realChatIds).exec();
     } catch(err){
-        console.log('1111111111');
-        console.log(err);
         return next(new HttpError('Something went wrong. Please try again later', 500))
     }
     try{
         drop = await Drop.findById(dropId)
     }catch(err){
-        console.log('222222222');
-        console.log(err);
         return next(new HttpError('Something went wrong. Please try again later', 500))
     }
     const messageReplacements = chats.map(async (chat) => {
@@ -141,8 +126,6 @@ const sendDropMessage = async (req, res, next) => {
             receivers = await User.find().where('_id').in(receiversIds).exec();
         }
         catch (err) {
-            console.log('33333333333');
-            console.log(err);
             return next(new HttpError('Something went wrong. Please try again later', 500));
         }
         const newMessage = new Message({
@@ -166,8 +149,6 @@ const sendDropMessage = async (req, res, next) => {
                 await receiver.save();
             }
             catch (err) {
-                console.log('44444444444');
-                console.log(err);
                 return next(new HttpError('Something went wrong. Please try again later', 500));
             }
         });
@@ -176,13 +157,8 @@ const sendDropMessage = async (req, res, next) => {
             await chat.save();
         }
         catch (err) {
-            console.log('5555555555');
-
-            console.log(err);
             return next(new HttpError('Something went wrong. Please try again later', 500));
         }
-        console.log('LOOP');
-        
         return { chatId: chat._id, message: prepareMessage(newMessage) };
     })
 
@@ -191,9 +167,6 @@ const sendDropMessage = async (req, res, next) => {
         user = await User.findById(userId);
     }
     catch(err){  
-        console.log('66666666');
-
-        console.log(err);
         return next(new HttpError('Something went wrong. Try again later 1', 500)) 
     } 
 
@@ -202,8 +175,6 @@ const sendDropMessage = async (req, res, next) => {
         try{
             receiver = await User.findById(receiverId);
         }catch(err){
-            console.log('7777777777');
-            console.log(err);
             return next(new HttpError('Something went wrong. Try again later 2', 500)) 
         }
         if(!receiver){
@@ -233,12 +204,10 @@ const sendDropMessage = async (req, res, next) => {
             user.save();
             createdChat.save(); 
         }catch(err){
-            console.log('888888888888')
-            console.log(err);
             return next(new HttpError('There was a problem. Please try again later', 500));
         }
         let prePreparedChat = {
-            chatId: createdChat._id, 
+            _id: createdChat._id, 
             group: false,
             members: [user, receiver],
             admins: [userId, receiverId],
@@ -262,8 +231,6 @@ const sendTextMessage = async (req, res, next) => {
     try {
         chat = await Chat.findById(chatId);
     }catch(err){
-        console.log(chatId);
-        console.log(err);
         return next(new HttpError('Something went wrong, could not find Chat', 500));
     }
     if(!chat){
@@ -315,13 +282,11 @@ const sendTextMessage = async (req, res, next) => {
     try{
         await receiver.save(); 
     }catch(err){
-        console.log(err);
         return next(new HttpError('Something went wrong. Please try again later', 500));  
     }
     try{
         await chat.save()
     }catch(err){
-        console.log(err);
         return next(new HttpError('Something went wrong. Please try again later', 500));
     }
     const preparedMessage = prepareMessage(newMessage);
@@ -355,13 +320,11 @@ const readTextMessages = async (req, res, next) => {
             && `${n.chatId}` === `${chatId}`
             && messageIds.some(id => id === `${n.message._id}`))
         })
-    console.log(notificationsNew.length);
-
     user.notifications = notificationsNew;
     try{
         await user.save();
     }catch(err){
-        console.log('PULL ERROR', err);
+        return next(new HttpError('Something went wrog. Please try again later.', 500))
     }
     res.json({message: 'Message successfully marked as seen'});
 }
