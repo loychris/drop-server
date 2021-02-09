@@ -6,8 +6,8 @@ const dropSchema = new mongoose.Schema({
   meme: { type: String, required: true },
   source: { type: String },
   posted: { type: Date, required: true },
-  leftSwipers: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
-  rightSwipers: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
+  leftSwipers: [{ type: String }],
+  rightSwipers: [{ type: String }],
   pinners: [{ type: mongoose.Types.ObjectId, ref: 'User'}],
   comments: [{ type: mongoose.Types.ObjectId, ref: 'Comment'}]
 });

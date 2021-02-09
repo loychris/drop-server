@@ -54,7 +54,8 @@ const signup = async (req, res, next) => {
     friends: [],
     receivedFriendRequests: [],
     sentFriendRequests: [],
-    profilePic: req.file ? true : false
+    profilePic: req.file ? true : false,
+    notifications: []
   });
 
   //upload ProfilePic

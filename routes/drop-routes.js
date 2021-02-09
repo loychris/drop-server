@@ -11,10 +11,10 @@ router.get('/ids', dropController.getAllDropIds)
 router.get("/:dropId/comment", dropController.getCommentsForDrop);
 router.get("/:dropId", optionalAuth, dropController.getDropById);
 router.get("/", dropController.getAllDrops);
-router.post("/:dropId/swipe", dropController.swipeDrop);
+router.post("/:dropId/swipe", optionalAuth, dropController.swipeDrop);
 router.post("/:dropId/save", dropController.saveDrop);
 router.post('/drops', optionalAuth, dropController.getDropsByIds);
-router.post("/", fileUpload.single('file'), dropController.createDrop);
+router.post("/", auth, fileUpload.single('file'), dropController.createDrop);
 
 router.delete("/:dropId", dropController.deleteDrop);
 router.patch("/:dropId", dropController.updateDrop);

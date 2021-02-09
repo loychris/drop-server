@@ -99,7 +99,8 @@ const getCommentsForDrop = async (req, res, next) => {
 
 
 const createDrop = async (req, res, next) => {
-  const { title, creatorId, source } = req.body;
+  const { title, source } = req.body;
+  const creatorId = req.userData.userId;
   if(!req.file){
     return next(new HttpError('No file received', 400));
   }
@@ -220,22 +221,36 @@ const deleteDrop = async (req, res, next) => {
 
 const swipeDrop = async (req, res, next) => {
   const dropId = req.params.dropId;
-  const { userId, like } = req.body; 
-  const drop = await getDrop(dropId, next); 
-  const user = await getUser(userId, next);
+  const { like, anonymousId } = req.body; 
+  console.log(anonymousId);
+  const userId = req.userData ? req.userData.userId : null;
+  let drop, user;
+  try{
+    drop = await getDrop(dropId, next); 
+  }catch(err){
+    return next(new HttpError('Something went wrong. Please try again later', 500));
+  }
+  if(userId){
+    console.log('LOGGED IN')
+    try{
+      user = await getUser(userId, next); 
+    }catch(err){
+      return next(new HttpError('Something went wrong. Please try again later', 500));
+    }
+  }
+  if(!drop){
+    return next(new HttpError('Drop not found for given Id', 404));
+  }
   if(like){
-    drop.leftSwipers.push(user);
-    user.swipedLeftDrops.push(drop);
+    drop.rightSwipers.push(user ? `${user._id}_${Date.now()}` : `${anonymousId}_${Date.now()}`);
+    if(user) user.swipedRightDrops.push(drop._id);
   }else{
-    drop.rightSwipers.push(user);
-    user.swipedRightDrops.push(drop);
+    drop.leftSwipers.push(user ? `${user._id}_${Date.now()}` : `${anonymousId}_${Date.now()}`);
+    if(user) user.swipedLefttDrops.push(drop._id);
   }
   try {
-    const sess = await mongoose.startSession();
-    sess.startTransaction();
-    await drop.save({session: sess});
-    await user.save({session: sess});
-    await sess.commitTransaction();
+    await drop.save();
+    if(user) await user.save();
   } catch (err) {
     console.log(err);
     return next(new HttpError("Swiping drop failed, please try again", 500));
