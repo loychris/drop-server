@@ -62,7 +62,8 @@ const userSchema = new Schema({
     receivedFriendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     sentFriendRequests: [{type: mongoose.Types.ObjectId, ref: 'User'}],
     profilePic: { type: Boolean, required: true },
-    notifications: [notificationSchema]
+    notifications: [notificationSchema],
+    anonymousId: { type: String },
 });
 
 const User = mongoose.model("User", userSchema);

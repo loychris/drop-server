@@ -19,7 +19,8 @@ const reservedHandles = ['elon', 'json', 'chamath', 'david', 'jack', 'naval', 'k
 
 const signup = async (req, res, next) => {
   checkValidation(req, next);
-  const { name, email, handle, password, newsletter } = req.body;
+  const { name, email, handle, password, newsletter, anonymousId } = req.body;
+  console.log('anonymousId', anonymousId);
   let user;
   //check handle
   if(reservedHandles.some(h => h === handle)) {
@@ -58,7 +59,8 @@ const signup = async (req, res, next) => {
     receivedFriendRequests: [],
     sentFriendRequests: [],
     profilePic: req.file ? true : false,
-    notifications: []
+    notifications: [], 
+    anonymousId: anonymousId
   });
 
   //upload ProfilePic
