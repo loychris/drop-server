@@ -11,19 +11,20 @@ const {
   prepareSelf, 
   prepareChat, 
   prepareNotification,
-  prepareMessage
 } = require('../util/util');
-const { User, Notification, EmailListUser } = require('../models/user-schema');
-const { Chat, Message } = require('../models/chat-schema'); 
+const { User, EmailListUser } = require('../models/user-schema');
+const { Chat } = require('../models/chat-schema'); 
 
-const reservedHandles = ['elon', 'json', 'chamath', 'david', 'jack', 'naval', 'kim', 'zuck']
+const reservedHandles = ['elon', 'json', 'chamath', 'david', 'jack', 'naval', 'kim', 'zuck', 'jeff', 'evan', 'bobby'];
 
 const signup = async (req, res, next) => {
   checkValidation(req, next);
-  const { name, email, handle, password } = req.body;
+  const { name, email, handle, password, newsletter } = req.body;
   let user;
   //check handle
-  if(reservedHandles.some(h => h === handle)) return next(new HttpError(`Handle already taken. Please try another.`, 422))}   
+  if(reservedHandles.some(h => h === handle)) {
+    return next(new HttpError(`Handle already taken. Please try another.`, 422))
+  }   
   try{
     user = await User.findOne({handle: handle})
   }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
@@ -86,9 +87,30 @@ const signup = async (req, res, next) => {
     stream.end(req.file.buffer);
     createdUser.profilePic = true;
   }
-  try{
 
-      await createdUser.save()
+  // JOIN EMAIL LIST 
+  let emailUser;
+  try {
+    emailUser = await EmailListUser.findOne({email: email.toLowerCase()}).exec();
+  }catch(err){
+    return next(new HttpError("Something went wrong. Please try again later.", 500));
+  }
+  if(emailUser){
+    if(!emailUser.subscribed){
+      //resubscribing
+      emailUser.subscribed = newsletter
+    }
+  }else {
+    emailUser = new EmailListUser({
+      email: email,
+      subscribed: newsletter,
+      signupDate: Date.now(), 
+    })
+  }
+
+  try{
+      await createdUser.save();
+      await emailUser.save();
   }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
   let token;
   try{
