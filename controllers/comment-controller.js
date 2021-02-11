@@ -70,11 +70,20 @@ const updateComment = async (req, res, next) => {
 const deleteComment = async (req, res, next) => {
   const userId = req.userData.userId;
   const commentId = req.params.commentId;
-  const comment = await getCommnetFromDB(commentId);
-  if(comment.author !== userId) return next(new HttpError('Only the author of the comment can delete it!', 401))
-  comment.deleted = true;
+  let comment;
+  try {
+    comment = await Comment.findById(commentId)
+  } catch(err){
+    return next(new HttpError("Something went wrong. Please try again later", 500));
+  }
+  if(!comment){
+    return next(new HttpError("Comment not found", 404));
+  }
+  if(`${comment.author}` !== userId){
+    return next(new HttpError('Only the author of the comment can delete it!', 401));
+  }
   try{
-    await comment.save()
+    await Comment.deleteOne({_id: commentId});
   }catch(err){
     return next(new HttpError("Could not delete Comment. Try again later", 500));
   }
