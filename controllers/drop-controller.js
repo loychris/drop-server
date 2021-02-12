@@ -146,9 +146,6 @@ const createDrop = async (req, res, next) => {
     next(err);
   });
   stream.on('finish', () => {
-    console.log('/////////////');
-    console.log(`uploaded ${gcsname} to drop-meme-bucket`);
-    console.log('/////////////');
     req.file.cloudStorageObject = gcsname;
   });
   stream.end(req.file.buffer);

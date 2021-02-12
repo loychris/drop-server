@@ -25,20 +25,24 @@ const port = 5000;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-  );
-  res.setHeader('Access-Controll-Allow-Methods', 'GET, POST, PATCH, DELETE')
-  next();
-});
+
+// serve static frontend file eg. js
+app.use(express.static(path.join('public')))
+
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+//   res.setHeader(
+//     'Access-Control-Allow-Headers',
+//     'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+//   );
+//   res.setHeader('Access-Controll-Allow-Methods', 'GET, POST, PATCH, DELETE')
+//   next();
+// });
 
 // // // Delay simulator
-app.use((req, res, next) => {
-  setTimeout(() => next(), 2000)
-})
+// app.use((req, res, next) => {
+//   setTimeout(() => next(), 2000)
+// })
 
 app.use('/', chatRoutes);
 app.use("/api/extension", extensionRoutes);
@@ -47,39 +51,15 @@ app.use("/api", commentRoutes);
 app.use("/api/drop", dropRoutes);
 app.use("/api/meme", memeRoutes);
 app.use("/api", adminRoutes);
-app.delete('/purgeDB', (req, res, next) => {
-  Drop.deleteMany({}).exec()
-  .then(() => {
-    console.log('All drops removed');
-    User.deleteMany({}).exec()
-    .then(() => {
-      console.log('All users removed');
-      Comment.deleteMany({}).exec()
-      .then(() => {
-        console.log('All comments removed');
-        res.json({message: "All drops & Users & Comments removed"});
-      })
-    })
-    .then(() => {
-      const directory = path.join(__dirname, 'DB');
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-        for (const file of files) {
-          fs.unlink(path.join(directory, file), err => {
-            if (err) throw err;
-          });
-        }
-      });
-    });
-  });
-});
-
-  
 
 app.use((req, res, next) => {
-  const error = new HttpError("Could not find this route.", 404);
-  throw error;
-});
+  res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+})
+
+// app.use((req, res, next) => {
+//   const error = new HttpError("Could not find this route.", 404);
+//   throw error;
+// });
 
 app.use((error, req, res, next) => {
   if (res.headerSent) {
@@ -95,7 +75,7 @@ app.use((error, req, res, next) => {
 console.log("trying to connect to the db...");
 mongoose
   .connect(
-    "mongodb+srv://Chris:V60CRFG7JtMrAPwN@dropcluster.52lyz.mongodb.net/stream?retryWrites=true&w=majority",
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@dropcluster.52lyz.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
@@ -104,5 +84,6 @@ mongoose
     app.listen(port);
   })
   .catch((err) => {
+    console.log(err);
     console.log('Could not connect to db');
   });

@@ -1,0 +1,34 @@
+{
+  "files": {
+    "main.css": "/static/css/main.0031459e.chunk.css",
+    "main.js": "/static/js/main.2089c8a5.chunk.js",
+    "main.js.map": "/static/js/main.2089c8a5.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.6a5a8297.js",
+    "runtime-main.js.map": "/static/js/runtime-main.6a5a8297.js.map",
+    "static/js/2.60885546.chunk.js": "/static/js/2.60885546.chunk.js",
+    "static/js/2.60885546.chunk.js.map": "/static/js/2.60885546.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.1675d7f08896c08e50e0924aaf286d9c.js": "/precache-manifest.1675d7f08896c08e50e0924aaf286d9c.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/main.0031459e.chunk.css.map": "/static/css/main.0031459e.chunk.css.map",
+    "static/js/2.60885546.chunk.js.LICENSE.txt": "/static/js/2.60885546.chunk.js.LICENSE.txt",
+    "static/media/Boat.png": "/static/media/Boat.3dbd1766.png",
+    "static/media/Checkmark.svg": "/static/media/Checkmark.b3d6155d.svg",
+    "static/media/Connector.svg": "/static/media/Connector.40fb2d2c.svg",
+    "static/media/ProfilePicPlaceholder.svg": "/static/media/ProfilePicPlaceholder.c11065af.svg",
+    "static/media/River.svg": "/static/media/River.8e9135cd.svg",
+    "static/media/RiverGlow.svg": "/static/media/RiverGlow.af772977.svg",
+    "static/media/RiverWhite.svg": "/static/media/RiverWhite.be3b1447.svg",
+    "static/media/TrashClosed.svg": "/static/media/TrashClosed.031e471e.svg",
+    "static/media/TrashOpen.svg": "/static/media/TrashOpen.72dbd9cc.svg",
+    "static/media/logout.svg": "/static/media/logout.1120a8e8.svg",
+    "static/media/stupidfuckingface.jpeg": "/static/media/stupidfuckingface.68ec9ee5.jpeg",
+    "static/media/taktaktak.jpg": "/static/media/taktaktak.ef08bdad.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.6a5a8297.js",
+    "static/js/2.60885546.chunk.js",
+    "static/css/main.0031459e.chunk.css",
+    "static/js/main.2089c8a5.chunk.js"
+  ]
+}

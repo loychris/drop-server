@@ -118,7 +118,7 @@ const signup = async (req, res, next) => {
   try{
     token = jwt.sign(
       { userId: createdUser.id, email: createdUser.email },
-      'supersecret_private_key_dont_share',
+      process.env.JWT_SECRET,
       { expiresIn: '672h' }
     );
   }catch(err){ return next(new HttpError('Register User failed, please try again later.', 500))}
@@ -167,9 +167,10 @@ const login = async (req, res, next) => {
 
   let token;
   try{
+    console.log(process.env.JWT_SECRET); 
     token = jwt.sign(
       { userId: existingUser.id, email: existingUser.email },
-      'supersecret_private_key_dont_share',
+      process.env.JWT_SECRET,
       { expiresIn: '672h' }
     );
   }catch(err){ 
@@ -198,9 +199,10 @@ const refreshSelf = async (req, res, next) => {
   }
   let token;
   try{
+    console.log(process.env.JWT_SECRET); 
     token = jwt.sign(
       { userId, email: self.email },
-      'supersecret_private_key_dont_share',
+      process.env.JWT_SECRET,
       { expiresIn: '672h' }
     );
   }catch(err){ 

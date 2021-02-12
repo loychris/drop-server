@@ -1,0 +1,8 @@
+{
+    "env": {
+        "DB_USER": "Chris",
+        "DB_PASSWORD": "V60CRFG7JtMrAPwN",
+        "DB_NAME": "stream",
+        "JWT_SECRET": "supersecret_private_key_dont_share"
+    }
+}
