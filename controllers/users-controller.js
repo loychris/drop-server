@@ -142,7 +142,14 @@ const login = async (req, res, next) => {
         .populate({path: 'receivedFriendRequests', model: 'User'})
         .populate({path: 'sentFriendRequests', model: 'User'})
         .populate({path: 'friends', model: 'User'})
-        .populate({path: 'chats', model: 'Chat', populate: 'members'})
+        .populate({
+          path: 'chats', 
+          model: 'Chat', 
+          populate: {
+            path: 'members',
+            model: 'User'
+          }
+        }).exec();
     }catch(err){ 
       return next(new HttpError('Logging in failed, please try again later.', 500))
     }
@@ -167,7 +174,6 @@ const login = async (req, res, next) => {
 
   let token;
   try{
-    console.log(process.env.JWT_SECRET); 
     token = jwt.sign(
       { userId: existingUser.id, email: existingUser.email },
       process.env.JWT_SECRET,
@@ -176,6 +182,7 @@ const login = async (req, res, next) => {
   }catch(err){ 
     return next(new HttpError('Register User failed, please try again later.', 500))
   }
+  console.log(existingUser.chats[0].members[1].name);
   const preparedUser = prepareSelf(existingUser, token)
   res.json(preparedUser)
 };
@@ -199,7 +206,6 @@ const refreshSelf = async (req, res, next) => {
   }
   let token;
   try{
-    console.log(process.env.JWT_SECRET); 
     token = jwt.sign(
       { userId, email: self.email },
       process.env.JWT_SECRET,
@@ -363,6 +369,10 @@ const getNotifications = async (req, res, next) => {
   catch(err){ 
     return next(new HttpError("Something went wrong. Try again later", 500)) 
   } 
+  if(!user){
+    return next(new HttpError("User not found", 404));
+  }
+
   const preparedNotifications = user.notifications.map(prepareNotification); 
   res.json(preparedNotifications);
 }

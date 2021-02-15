@@ -81,7 +81,7 @@ const prepareSelf = (user, token) => {
   return {
     name: user.name,
     handle: user.handle,
-    chats: user.chats.map(c => prepareChat(c, user.id)),
+    chats: user.chats.map(c => prepareChat(c, user._id)),
     friends: user.friends.map(prepareUserData),
     notifications: user.notifications.map(prepareNotification),
     receivedFriendRequests: user.receivedFriendRequests.map(prepareUserData),
@@ -148,10 +148,10 @@ const prepareDrop = (drop, userId) => {
   }
 }
 
-const prepareChat = (chat, userId) => {
+const prepareChat = (chat, userId) => { 
   const preparedMembers = chat.members.map(prepareUserData)
   const chatPartner = preparedMembers.filter(member => `${member.userId}` !== userId)[0]
-  const name = chat.name ? chat.name : chatPartner.name;
+  const name = chat.name ? chat.name : chatPartner ? chatPartner.name: 'unknown';
   const messages = chat.messages.map(prepareMessage);
   return {
     group: chat.group,
