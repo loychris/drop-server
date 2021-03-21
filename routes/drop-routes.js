@@ -7,17 +7,17 @@ const optionalAuth = require('../middleware/check-optional-auth');
 
 const router = express.Router();
 
-router.get('/ids', dropController.getAllDropIds)
-router.get("/:dropId/comment", dropController.getCommentsForDrop);
-router.get("/:dropId", optionalAuth, dropController.getDropById);
-router.get("/", dropController.getAllDrops);
-router.post("/:dropId/swipe", optionalAuth, dropController.swipeDrop);
-router.post("/:dropId/save", dropController.saveDrop);
-router.post('/drops', optionalAuth, dropController.getDropsByIds);
-router.post("/", auth, fileUpload.single('file'), dropController.createDrop);
+router.get('/api/drop/ids', dropController.getAllDropIds)
+router.get("/api/drop/:dropId/comment", dropController.getCommentsForDrop);
+router.get("/api/drop/:dropId", optionalAuth, dropController.getDropById);
+router.get("/api/drop/", dropController.getAllDrops);
+router.post("/api/drop/:dropId/swipe", optionalAuth, dropController.swipeDrop);
+router.post("/api/drop/:dropId/save", dropController.saveDrop);
+router.post('/api/drop/drops', optionalAuth, dropController.getDropsByIds);
+router.post("/api/drop/", auth, fileUpload.single('file'), dropController.createDrop);
 
-router.delete("/:dropId", dropController.deleteDrop);
-router.patch("/:dropId", dropController.updateDrop);
+router.delete("/api/drop/:dropId", dropController.deleteDrop);
+router.patch("/api/drop/:dropId", dropController.updateDrop);
 
 
 module.exports = router;

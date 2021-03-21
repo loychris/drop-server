@@ -29,7 +29,22 @@ const getDropById = async (req, res, next) => {
   let drop;
 
   try {
-    drop = await Drop.findById(dropId).populate('comments').exec();
+    drop = await Drop.findById(dropId)
+      .populate({
+        path: 'comments', 
+        model: 'Comment', 
+        populate: [{
+          path: 'author', 
+          model: 'User', 
+          select: 'name handle profilePic'
+        }, {
+          path: 'subComments author',
+          model: 'User',
+          select: 'name handle profilePic',
+        }
+        ]
+      })
+      .exec();
   } catch (err) {
     console.log(err);
     return next(new HttpError("Something went wrong, could not find drop", 500));

@@ -1,26 +1,100 @@
 const Twit = require('twit')
 const Axios = require('axios');
 const fs = require('fs');
+const http = require('http');
+const Drop = require("../models/drop-schema");
+const { Storage } = require('@google-cloud/storage');
 
+const { prepareDrop } = require("../util/util");
+
+
+//-----------------------------------------------------------------------------------
 
 const postToStream = (req, res, next) => {
-    console.log("Posting meme to Stream!")
-    console.log(req.body)
+  const { title, source, id } = req.body;
+  const src = source === '9gag' ? 'https://9gag.com/gag/' + id : ''; 
+  const url = `https://img-9gag-fun.9cache.com/photo/${id}_700b.jpg`; 
+  const dest = `./meme${id}`
+
+  const createdDrop = new Drop({
+    title,
+    creatorId: "602627eac021720012a01948",
+    meme: "f",
+    source: src,
+    posted: new Date(),
+    leftSwipers: [],
+    rightSwipers: [],
+    pinners: [],
+    comments: []
+  });
+
+  // download File from url 
+  var download = (url, dest, cb) => {
+    const file = fs.createWriteStream(dest);
+    http.get(url, (response) => {
+      response.pipe(file);
+      file.on('finish', () => {
+        file.close(cb);
+      });
+    }).on('error', function(err) { // Handle errors
+      fs.unlink(dest); // Delete the file async. (But we don't check the result)
+      if (cb) cb(err.message);
+    });
+  }
+
+  download(url, dest, () => console.log('Downlaod success'));
+  // const file = fs.createWriteStream(dest);
+  // const request = http.get(url, (response) => {
+  //   response.pipe(file);
+  //   file.on('finish', () => {
+  //     file.close(cb);  // close() is async, call cb after close completes.
+  //   });
+  // }).on('error', (err) => { // Handle errors
+  //   fs.unlink(dest); // Delete the file async. (But we don't check the result)
+  //   if (cb) cb(err.message);
+  // });
+
+  //////// Post Pic to GCP Bucket /////////////////////////////////////////////////////////////
+
+  // const storage = new Storage({
+  //   keyFilename: path.join(__dirname, '../drop-260521-cc0eb8f443d7.json'),
+  //   projectId: 'drop-260521'
+  // });
+  // const memesBucket = storage.bucket('drop-meme-bucket')
+
+  // const gcsname = `meme-${createdDrop._id}`;
+  // const file = memesBucket.file(gcsname);
+  // const stream = file.createWriteStream({
+  //   metadata: {
+  //     contentType: req.file.mimetype
+  //   },
+  //   resumable: false
+  // });
+  // stream.on('error', (err) => {
+  //   req.file.cloudStorageError = err;
+  //   next(err);
+  // });
+  // stream.on('finish', () => {
+  //   req.file.cloudStorageObject = gcsname;
+  // });
+  // stream.end(req.file.buffer);
+  //////////////////////////////////////////////////////////////////////
+    
     res.json({message: "saved"})
 }
 
-const postToStreamWithTitile = (req, res, next) => {
-    console.log("Posting meme to Stream with Title!")
-    console.log(req.body)
-    res.json({message: "saved"})
 
-}
+
+
+//-----------------------------------------------------------------------------------
 
 const postToInstagram = (req, res, next) => {
     console.log("Posting meme to Instagram Feed!")
     console.log(req.body)
     res.json({message: "saved"})
 }
+
+//-----------------------------------------------------------------------------------
 
 const postToInstagramStory = (req, res, next) => {
     console.log("Posting meme to Instagram Story!")
@@ -29,6 +103,8 @@ const postToInstagramStory = (req, res, next) => {
 
 }
 
+//-----------------------------------------------------------------------------------
+
 function getBase64(url) {
     return Axios
       .get(url, {
@@ -36,6 +112,8 @@ function getBase64(url) {
       })
       .then(response => Buffer.from(response.data, 'binary').toString('base64'))
   }
+
+//-----------------------------------------------------------------------------------
 
 const postToTwitter = async (req, res, next) => {
     console.log("Posting meme to Twitter!")
@@ -76,9 +154,10 @@ const postToTwitter = async (req, res, next) => {
           }
         })
       })
-    res.json({message: "saved"})
-
+    res.json({message: "saved"});
 }
+
+//-----------------------------------------------------------------------------------
 
 const postToTumblr = (req, res, next) => {
     console.log("Posting meme to Tumblr!")
@@ -87,9 +166,10 @@ const postToTumblr = (req, res, next) => {
 
 }
 
+//-----------------------------------------------------------------------------------
+
 exports.postToStream = postToStream;
 exports.postToInstagramStory = postToInstagramStory;
-exports.postToStreamWithTitile = postToStreamWithTitile;
 exports.postToTwitter = postToTwitter;
 exports.postToTumblr = postToTumblr;
 exports.postToInstagram = postToInstagram;

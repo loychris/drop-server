@@ -45,10 +45,10 @@ app.use(express.static(path.join('public')))
 // })
 
 app.use('/', chatRoutes);
-app.use("/api/extension", extensionRoutes);
+app.use("/", extensionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api", commentRoutes);
-app.use("/api/drop", dropRoutes);
+app.use("/", dropRoutes);
 app.use("/api/meme", memeRoutes);
 app.use("/api", adminRoutes);
 

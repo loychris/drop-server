@@ -96,10 +96,11 @@ const prepareSelf = (user, token) => {
 
 const prepareComment = (c, userId) => {
   const { comment, author, posted, upVoters, downVoters, subComments, _id } = c;
+  const preparedAuthor = prepareUserData(author);
   let preparedComment = {
     id: _id,
     comment,
-    authorId: author,
+    author: preparedAuthor,
     posted,
     points: upVoters.length-downVoters.length,
     subComments: subComments ? userId ? subCommentArrToTree(subComments, userId) : subCommentArrToTree(subComments) : []
@@ -110,6 +111,8 @@ const prepareComment = (c, userId) => {
   }
   return preparedComment;
 };
+
+
 
 const prepareSubComment = (subComment, userId) => {
   const { upVoters, downVoters, _id, actualComment, author, path, subComments } = subComment;
@@ -127,6 +130,8 @@ const prepareSubComment = (subComment, userId) => {
   }
   return preparedSubComment;
 }
+
+
 
 const prepareUserData = (user) => {
   return {
