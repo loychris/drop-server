@@ -223,6 +223,7 @@ const refreshSelf = async (req, res, next) => {
 const checkHandle = async (req, res, next) => {
   const handle = req.body.handle;
   let user;
+  if(!handle) return next(new HttpError("No handle provided.", 400));
   try {
     user = await User.findOne({ handle: handle })
   } catch (err) {

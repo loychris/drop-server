@@ -21,7 +21,7 @@ const Drop = require('./models/drop-schema');
 
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -84,9 +84,6 @@ mongoose
     app.listen(port);
   })
   .catch((err) => {
-    console.log('DB_NAME: ', process.env.DB_NAME)
-    console.log('DB_USER: ', process.env.DB_USER)
-    console.log('DB_NAME: ', process.env.DB_PASSWORD)
     console.log(err);
     console.log('Could not connect to db');
   });
