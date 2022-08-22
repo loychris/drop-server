@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/static/css/main.44d62195.chunk.css",
-    "main.js": "/static/js/main.cae16a72.chunk.js",
-    "main.js.map": "/static/js/main.cae16a72.chunk.js.map",
+    "main.js": "/static/js/main.c5a64c11.chunk.js",
+    "main.js.map": "/static/js/main.c5a64c11.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.993f82ea.js",
     "runtime-main.js.map": "/static/js/runtime-main.993f82ea.js.map",
-    "static/js/2.af0bbc7e.chunk.js": "/static/js/2.af0bbc7e.chunk.js",
-    "static/js/2.af0bbc7e.chunk.js.map": "/static/js/2.af0bbc7e.chunk.js.map",
+    "static/js/2.63947687.chunk.js": "/static/js/2.63947687.chunk.js",
+    "static/js/2.63947687.chunk.js.map": "/static/js/2.63947687.chunk.js.map",
     "index.html": "/index.html",
-    "precache-manifest.29f1aec41a04258673122cb4363a93fc.js": "/precache-manifest.29f1aec41a04258673122cb4363a93fc.js",
+    "precache-manifest.9cf5c9cba23f1b9b830c10cfcf0da3a7.js": "/precache-manifest.9cf5c9cba23f1b9b830c10cfcf0da3a7.js",
     "service-worker.js": "/service-worker.js",
     "static/css/main.44d62195.chunk.css.map": "/static/css/main.44d62195.chunk.css.map",
-    "static/js/2.af0bbc7e.chunk.js.LICENSE.txt": "/static/js/2.af0bbc7e.chunk.js.LICENSE.txt",
+    "static/js/2.63947687.chunk.js.LICENSE.txt": "/static/js/2.63947687.chunk.js.LICENSE.txt",
     "static/media/Boat.png": "/static/media/Boat.3dbd1766.png",
     "static/media/ChrisDrunk.jpg": "/static/media/ChrisDrunk.7d51e42e.jpg",
     "static/media/Connector.svg": "/static/media/Connector.40fb2d2c.svg",
@@ -20,6 +20,8 @@
     "static/media/RiverWhite.svg": "/static/media/RiverWhite.be3b1447.svg",
     "static/media/TrashClosed.svg": "/static/media/TrashClosed.031e471e.svg",
     "static/media/TrashOpen.svg": "/static/media/TrashOpen.72dbd9cc.svg",
+    "static/media/Washington.jpeg": "/static/media/Washington.85b39daf.jpeg",
+    "static/media/Washington_Monument.jpeg": "/static/media/Washington_Monument.e6445e71.jpeg",
     "static/media/arrow_back.eaea21b2.svg": "/static/media/arrow_back.eaea21b2.svg",
     "static/media/index.css": "/static/media/oswald-v36-latin-regular.fd2acbaf.ttf",
     "static/media/logout.svg": "/static/media/logout.1120a8e8.svg",
@@ -29,8 +31,8 @@
   },
   "entrypoints": [
     "static/js/runtime-main.993f82ea.js",
-    "static/js/2.af0bbc7e.chunk.js",
+    "static/js/2.63947687.chunk.js",
     "static/css/main.44d62195.chunk.css",
-    "static/js/main.cae16a72.chunk.js"
+    "static/js/main.c5a64c11.chunk.js"
   ]
 }
