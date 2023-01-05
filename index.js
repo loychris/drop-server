@@ -15,6 +15,7 @@ const commentRoutes = require('./routes/comment-routes');
 const extensionRoutes = require('./routes/extension-routes');
 const adminRoutes = require('./routes/admin-routes');
 const chatRoutes = require('./routes/chat-routes');
+const shopifyRoutes = require('./routes/shopify-routes'); 
 
 const User = require('./models/user-schema');
 const Comment = require('./models/comment-schema');
@@ -52,6 +53,8 @@ app.use("/api", commentRoutes);
 app.use("/", dropRoutes);
 app.use("/api/meme", memeRoutes);
 app.use("/api", adminRoutes);
+app.use("/api/shopify", shopifyRoutes); 
+
 
 app.use((req, res, next) => {
   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
@@ -63,6 +66,7 @@ app.use((req, res, next) => {
 // });
 
 app.use((error, req, res, next) => {
+  console.log(error)
   if (res.headerSent) {
     return next(error);
   }
