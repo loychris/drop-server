@@ -74,7 +74,7 @@ const EmailListUser = mongoose.model("EmailListUser", EmailListUserSchema);
 userSchema.plugin(uniqueValidator);
 
 module.exports = {
-        User: User,
-        Notification: Notification,
-        EmailListUser: EmailListUser,  
+        User,
+        Notification,
+        EmailListUser,  
 }

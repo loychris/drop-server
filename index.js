@@ -8,7 +8,7 @@ require('dotenv').config()
 
 
 const HttpError = require("./models/http-error");
-const memeRoutes = require("./routes/meme-route");
+const memeRoutes = require("./routes/meme-routes");
 const dropRoutes = require("./routes/drop-routes");
 const userRoutes = require("./routes/users-routes");
 const commentRoutes = require('./routes/comment-routes');
@@ -16,11 +16,6 @@ const extensionRoutes = require('./routes/extension-routes');
 const adminRoutes = require('./routes/admin-routes');
 const chatRoutes = require('./routes/chat-routes');
 const shopifyRoutes = require('./routes/shopify-routes'); 
-
-const User = require('./models/user-schema');
-const Comment = require('./models/comment-schema');
-const Drop = require('./models/drop-schema');
-
 
 const app = express();
 const port = process.env.PORT || 5000;

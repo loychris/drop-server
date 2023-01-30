@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const { prepareDrop, prepareComment } = require("../util/util");
 const Drop = require("../models/drop-schema");
-const { User, Notification } = require('../models/user-schema');
+const { User } = require('../models/user-schema');
 const Comment = require('../models/comment-schema');
 const HttpError = require("../models/http-error");
 const { Storage } = require('@google-cloud/storage');
@@ -342,13 +342,15 @@ const getDrop = async (id, next) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-exports.getAllDropIds = getAllDropIds;
-exports.getAllDrops = getAllDrops; 
-exports.getCommentsForDrop = getCommentsForDrop;
-exports.saveDrop = saveDrop; 
-exports.createDrop = createDrop;
-exports.getDropById = getDropById;
-exports.updateDrop = updateDrop;
-exports.deleteDrop = deleteDrop;
-exports.swipeDrop = swipeDrop;
-exports.getDropsByIds = getDropsByIds;
+module.exports = {
+  getAllDropIds,
+  getAllDrops,
+  getCommentsForDrop,
+  saveDrop,
+  createDrop,
+  getDropById,
+  updateDrop,
+  deleteDrop,
+  swipeDrop,
+  getDropsByIds,
+}
