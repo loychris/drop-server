@@ -39,18 +39,17 @@ const createMeme = async (req, res, next) => {
   res.status(201).json(newMeme);
 }; 
 
-
-
-
 const getMemeById = async (req, res, next) => {
-  const { memeId } = req.params;
-  if(!memeId){
+  console.log("getMemeById called")
+  const { id } = req.params;
+  if(!id){
     return next(new HttpError('No memeId provided', 400));
   }
   let meme 
   try {
-    meme = await Meme.findById(memeId).populate(elements);
+    meme = await Meme.findById(id);
   }catch(err){
+    console.log(err);
     return next(new HttpError('Something went wrong. Please try again', 500));
   }
   if(!meme){
