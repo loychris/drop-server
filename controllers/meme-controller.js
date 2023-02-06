@@ -63,7 +63,50 @@ const getMemeAsImage = async (req, res, next) => {
 }
 
 const updateMeme = async (req, res, next) => {
-
+  const { id } = req.params;
+  const { meme } = req.body;
+  const creatorId = req.userData.userId;
+  if(!id){
+    return next(new HttpError('No memeId provided', 400));
+  }
+  if(!meme){
+    return next(new HttpError('No meme provided', 400));
+  }
+  if(!creatorId){
+    return next(new HttpError('No creatorId provided', 400));
+  }
+  let existingMeme,creator;
+  try{
+    existingMeme = await Meme.findById(id);
+  }catch(err){
+    console.log(err);
+    return next(new HttpError('Something went wrong. Please try again', 500));
+  }
+  try{
+    creator = await User.findById(creatorId);
+  }catch(err){
+    console.log(err);
+    return next(new HttpError('Something went wrong. Please try again', 500));
+  }
+  if(!existingMeme){
+    return next(new HttpError('No meme found for given Id', 404));
+  }
+  if(existingMeme.creator.toString() !== creatorId && !user.admin){
+    return next(new HttpError('User not authorised to update this meme', 401));
+  }
+  if(!creator){
+    return next(new HttpError('Could not find user for provided id', 404));
+  }
+  meme.updated_at = Date.now();
+  existingMeme = {...existingMeme, ...meme};
+  console.log(existingMeme)
+  try{
+    await existingMeme.save();
+  }catch(err){
+    console.log(err);
+    return next(new HttpError('Something went wrong. Please try again', 500));
+  }
+  res.status(200).json(existingMeme);
 }
 
 // TODO: delete meme and all associated elements
