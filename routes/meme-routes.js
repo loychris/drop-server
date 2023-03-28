@@ -3,7 +3,8 @@ const {
     getMemeById, 
     createMeme, 
     updateMeme, 
-    deleteMeme
+    deleteMeme,
+    uploadPictureForMeme
 } = require("../controllers/meme-controller");
 
 const fileUpload = require('../middleware/file-upload');
@@ -13,6 +14,7 @@ const optionalAuth = require('../middleware/check-optional-auth');
 const router = express.Router();
 
 router.post("/", auth, fileUpload.single('file'), createMeme);
+router.post("/:memeId/media/:elementId", auth, fileUpload.single('file'), uploadPictureForMeme)
 router.get("/:id", getMemeById);
 router.patch(":id", auth, updateMeme);
 router.delete("/:id", auth, deleteMeme);
