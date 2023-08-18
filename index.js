@@ -16,6 +16,7 @@ const extensionRoutes = require('./routes/extension-routes');
 const adminRoutes = require('./routes/admin-routes');
 const chatRoutes = require('./routes/chat-routes');
 const shopifyRoutes = require('./routes/shopify-routes'); 
+const imageRoutes = require('./routes/image-routes'); 
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -49,6 +50,7 @@ app.use("/", dropRoutes);
 app.use("/api/meme", memeRoutes);
 app.use("/api", adminRoutes);
 app.use("/api/shopify", shopifyRoutes); 
+app.use("/api/image", imageRoutes);
 
 
 app.use((req, res, next) => {
