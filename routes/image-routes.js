@@ -8,10 +8,10 @@ const optionalAuth = require('../middleware/check-optional-auth');
 const router = express.Router();
 
 router.post("/", auth, fileUpload.single('file'), imageController.createImage);
-router.get("/:imageId", optionalAuth, imageController.getImage);
+router.get("/:imageId", optionalAuth, imageController.getImageById);
 router.delete("/:imageId", imageController.deleteImage);
 router.patch("/:imageId", imageController.updateImage);
 
 
 module.exports = router;
-caht
+
