@@ -9,8 +9,8 @@ const router = express.Router();
 
 router.post("/", auth, fileUpload.single('file'), imageController.createImage);
 router.get("/:imageId", optionalAuth, imageController.getImageById);
-router.delete("/:imageId", imageController.deleteImage);
-router.patch("/:imageId", imageController.updateImage);
+router.delete("/:imageId", auth, imageController.deleteImage);
+router.patch("/:imageId", auth, fileUpload.single('file'), imageController.updateImage);
 
 
 module.exports = router;

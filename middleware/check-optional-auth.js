@@ -6,11 +6,11 @@ module.exports = (req, res, next) => {
     if (req.method === 'OPTIONS') {
       return next();
     }
-    if(!req.headers.authorisation) {
+    if(!req.headers.authorization) {
         next()
     }else {
         try {
-            const token = req.headers.authorisation.split(' ')[1]
+            const token = req.headers.authorization.split(' ')[1]
             const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
             req.userData = { userId: decodedToken.userId }
         } catch (err) {

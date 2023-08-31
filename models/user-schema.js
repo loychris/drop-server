@@ -65,6 +65,7 @@ const userSchema = new Schema({
     notifications: [notificationSchema],
     anonymousId: { type: String },
     images: [{type: mongoose.Types.ObjectId, ref: 'Image'}],
+    admin: { type: Boolean },
 });
 
 const User = mongoose.model("User", userSchema);

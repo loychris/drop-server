@@ -214,6 +214,15 @@ const prepareNotification = notification => {
     }
 }
 
+const prepareImage = (image) => {
+  return {
+    id: image._id, 
+    name: image.name,
+    creatorId: image.creatorId,
+    public: image.public, 
+  }
+}
+
 exports.prepareSubComment = prepareSubComment;
 exports.prepareComment = prepareComment;
 exports.prepareSelf = prepareSelf;
@@ -226,3 +235,4 @@ exports.getUserFromDB = getUserFromDB;
 exports.prepareChat = prepareChat;
 exports.prepareMessage = prepareMessage;
 exports.prepareNotification = prepareNotification;
+exports.prepareImage = prepareImage; 
