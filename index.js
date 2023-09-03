@@ -76,10 +76,14 @@ app.use((error, req, res, next) => {
 
 console.log("trying to connect to the db...");
 mongoose
-  .connect(
-    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@dropcluster.52lyz.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+.connect(
+  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@dropcluster.52lyz.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true, // Add this option to enable index creation
+  }
+)
   .then(() => {
     console.log("Connected to db");
     console.log(`Listening on port ${port}`)
