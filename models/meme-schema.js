@@ -25,25 +25,27 @@ const elementSchema = new mongoose.Schema({
     // shape
     color: { type: String },
     // image
-    imgSrc: { type: String }
+    imageId:{ type: mongoose.Types.ObjectId, ref: 'Image'},
 });
 
 const memeSchema = new mongoose.Schema({
   title: { type: String, required: true },
   creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User'},
-  template: { type: Boolean, required: true },
-  response: { type: Boolean, required: true },
   created_at: { type: Date, required: true },
   updated_at: { type: Date, required: true },
   elements: [elementSchema],
   tags: [{ type: String }],
+  originalTemplate: { type: mongoose.Types.ObjectId, ref: 'Template'},
+  deleted: { type: Date },
 });
+
+memeSchema.index({ templateMeme: 1 });
 
 const Element = mongoose.model("Element", elementSchema);
 const Meme = mongoose.model("Meme", memeSchema);
 
 module.exports = {
     Meme,
-    Element, 
+    Element
 }
 
