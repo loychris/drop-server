@@ -2,14 +2,18 @@ const express = require('express');
 
 const extensionController = require('../controllers/extension-controller');
 
+const {
+    checkAdminAuth
+} = require('../middleware/check-auth');
+
 const router = express.Router();
 
 
-router.post('/api/extension/stream', extensionController.postToStream);
-router.post('/api/extension/instagram', extensionController.postToInstagram);
-router.post('/api/extension/igStory', extensionController.postToInstagramStory);
-router.post('/api/extension/twitter', extensionController.postToTwitter);
-router.post('/api/extension/tumblr', extensionController.postToTumblr);
+router.post('/stream', checkAdminAuth, extensionController.postToStream);
+router.post('/instagram', checkAdminAuth, extensionController.postToInstagram);
+router.post('/igStory', checkAdminAuth, extensionController.postToInstagramStory);
+router.post('/twitter', checkAdminAuth, extensionController.postToTwitter);
+router.post('/tumblr', checkAdminAuth, extensionController.postToTumblr);
 
 
 module.exports = router;

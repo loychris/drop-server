@@ -2,13 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require('body-parser')
-const fs = require('fs');
 const path = require('path');
 require('dotenv').config()
 
 
 const HttpError = require("./models/http-error");
-const memeRoutes = require("./routes/meme-routes");
+const templateRoutes = require("./routes/template-routes");
 const dropRoutes = require("./routes/drop-routes");
 const userRoutes = require("./routes/users-routes");
 const commentRoutes = require('./routes/comment-routes');
@@ -17,6 +16,7 @@ const adminRoutes = require('./routes/admin-routes');
 const chatRoutes = require('./routes/chat-routes');
 const shopifyRoutes = require('./routes/shopify-routes'); 
 const imageRoutes = require('./routes/image-routes'); 
+const memeRoutes = require('./routes/meme-routes');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -27,53 +27,42 @@ app.use(bodyParser.json());
 // serve static frontend file eg. js
 app.use(express.static(path.join('public')))
 
-// app.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin', '*');
-//   res.setHeader(
-//     'Access-Control-Allow-Headers',
-//     'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-//   );
-//   res.setHeader('Access-Controll-Allow-Methods', 'GET, POST, PATCH, DELETE')
-//   next();
-// });
-
 // // // Delay simulator
 // app.use((req, res, next) => {
 //   setTimeout(() => next(), 2000)
 // })
 
-app.use('/', chatRoutes);
-app.use("/", extensionRoutes);
+// Routes 
+app.use('/api/chat', chatRoutes);
+app.use("/api/extension", extensionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api", commentRoutes);
 app.use("/", dropRoutes);
-app.use("/api/meme", memeRoutes);
+app.use("/api/template", templateRoutes);
 app.use("/api", adminRoutes);
 app.use("/api/shopify", shopifyRoutes); 
 app.use("/api/image", imageRoutes);
+app.use("/api/meme", memeRoutes);
 
-
+// serve static frontend   
 app.use((req, res, next) => {
   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 })
 
-// app.use((req, res, next) => {
-//   const error = new HttpError("Could not find this route.", 404);
-//   throw error;
-// });
-
+// Error handling
 app.use((error, req, res, next) => {
   console.log(error)
   if (res.headerSent) {
     return next(error);
   }
-
   res.status(error.code || 500);
   res.json({
     message: error.message || "An unknown error occured!",
   });
 });
 
+
+// Connect DB and start Server
 console.log("trying to connect to the db...");
 mongoose
 .connect(

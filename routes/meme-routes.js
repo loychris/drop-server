@@ -1,23 +1,24 @@
 const express = require("express");
-const { 
-    getMemeById, 
-    createMeme, 
-    updateMeme, 
+const { check } = require("express-validator");
+const {
+    createMeme,
+    getMemeById,
     deleteMeme,
-    uploadPictureForMeme
+    updateMeme,
 } = require("../controllers/meme-controller");
-
 const fileUpload = require('../middleware/file-upload');
-const auth = require('../middleware/check-auth');
-const optionalAuth = require('../middleware/check-optional-auth');
+const {
+    checkAuth,
+    checkOptionalAuth
+} = require('../middleware/check-auth');
 
 const router = express.Router();
 
-router.post("/", auth, fileUpload.single('file'), createMeme);
-router.post("/:memeId/media/:elementId", auth, fileUpload.single('file'), uploadPictureForMeme)
-router.get("/:id", getMemeById);
-router.patch(":id", auth, updateMeme);
-router.delete("/:id", auth, deleteMeme);
+router.post("/", checkAuth, createMeme);
+router.get("/:memeId", checkOptionalAuth, getMemeById);
+router.delete("/:memeId", checkAuth, deleteMeme);
+router.patch("/:memeId", checkAuth, updateMeme);
 
 
 module.exports = router;
+

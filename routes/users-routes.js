@@ -1,6 +1,10 @@
 const express = require('express');
 const { check } = require('express-validator');
-const auth = require("../middleware/check-auth");
+const {
+    checkAuth,
+    checkOptionalAuth,
+    checkAdminAuth
+} = require("../middleware/check-auth");
 const fileUpload = require('../middleware/file-upload');
 
 
@@ -18,17 +22,17 @@ router.post('/signup', fileUpload.single('profilePic'),
 
 router.post('/login', usersController.login);
 
-router.post('/addFriend', auth, usersController.sendFriendRequest);
+router.post('/addFriend', checkAuth, usersController.sendFriendRequest);
 
 router.post('/emaillist', usersController.joinEmailList);
 
-router.get('/friendRequests', auth, usersController.getFriendRequests);
+router.get('/friendRequests', checkAuth, usersController.getFriendRequests);
 
-router.get('/refresh', auth, usersController.refreshSelf);
+router.get('/refresh', checkAuth, usersController.refreshSelf);
 
-router.get('/notifications', auth, usersController.getNotifications);
+router.get('/notifications', checkAuth, usersController.getNotifications);
 
-router.post('/acceptFriendRequest', auth, usersController.acceptFriendRequest);
+router.post('/acceptFriendRequest', checkAuth, usersController.acceptFriendRequest);
 
 router.post('/userdata', usersController.getDataForUsers);
 
@@ -36,7 +40,7 @@ router.post('/checkHandle', check('handle').isLength({min: 4, max: 20}), usersCo
 
 router.post('/checkEmail', check('email').normalizeEmail().isEmail(), usersController.checkEmail);
 
-router.delete('/notification/:notificationId', auth, usersController.deleteNotification);
+router.delete('/notification/:notificationId', checkAuth, usersController.deleteNotification);
 
 router.get('/', usersController.getAllUsers);
 
