@@ -25,6 +25,7 @@ const elementSchema = new mongoose.Schema({
     // shape
     color: { type: String },
     // image
+
     imageId:{ type: mongoose.Types.ObjectId, ref: 'Image'},
 });
 

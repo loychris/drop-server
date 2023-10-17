@@ -112,8 +112,6 @@ const prepareComment = (c, userId) => {
   return preparedComment;
 };
 
-
-
 const prepareSubComment = (subComment, userId) => {
   const { upVoters, downVoters, _id, actualComment, author, path, subComments } = subComment;
   let preparedSubComment = {
@@ -130,8 +128,6 @@ const prepareSubComment = (subComment, userId) => {
   }
   return preparedSubComment;
 }
-
-
 
 const prepareUserData = (user) => {
   return {
@@ -223,6 +219,19 @@ const prepareImage = (image) => {
   }
 }
 
+const prepareMeme = (meme) => {
+  return {
+    id: meme._id,
+    title: meme.title,
+    creatorId: meme.creatorId,
+    created_at: meme.created_at,
+    updated_at: meme.updated_at,
+    elements: meme.elements,
+    tags: meme.tags,
+    originalTemplate: meme.originalTemplate
+  }
+}
+
 exports.prepareSubComment = prepareSubComment;
 exports.prepareComment = prepareComment;
 exports.prepareSelf = prepareSelf;
@@ -236,3 +245,4 @@ exports.prepareChat = prepareChat;
 exports.prepareMessage = prepareMessage;
 exports.prepareNotification = prepareNotification;
 exports.prepareImage = prepareImage; 
+exports.prepareMeme = prepareMeme;
